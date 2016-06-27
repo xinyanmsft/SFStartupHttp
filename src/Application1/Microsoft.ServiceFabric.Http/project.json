@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "Microsoft.AspNet.WebApi.Core": "5.2.3",
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0-rc2-final",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-rc2-final",
+    "System.Collections.Immutable": "1.2.0-rc2-24027",
+    "System.Net.Http": "4.0.1-rc2-24027"
+  },
+  "frameworks": {
+    "net46": {
+      "dependencies": {
+        "Microsoft.ServiceFabric": "5.0.217",
+        "Microsoft.ServiceFabric.Services": "2.0.217"
+      }
+    }
+  },
+  "runtimes": {
+    "win7-x64": { }
+  }
+}

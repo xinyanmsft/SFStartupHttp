@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <style>
+        .input-group {
+            margin: 20px;
+        }
+
+        .btn {
+            margin-left: 20px;
+        }
+
+        p {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" onclick="startTodoListSession()" type="button">Start a new session</button>
+                </span>                
+            </div>
+            <h4>Session Id: <span class="label label-info" id="id"></span></h4>
+            <div class="input-group">
+                <input type="text" class="form-control" id="newTodoItemContent" placeholder="Add new TODO item ...">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" onclick="addNewTodoItem()" type="button">Add</button>
+                </span>
+            </div>
+            <div class="input-group">
+                <ul class="list-group" id="todoItemsList">
+                </ul>
+            </div>
+            <button type="button" class="btn btn-primary" style="visibility:visible" onclick="deleteSession()" id="btnDelete">Delete this session</button>
+            <p id="message" class="text-danger"></p>
+        </div>
+    </div>
+
+    <script>
+        var timeout;
+        var sessionData;
+        
+        function myAlert(text) {
+            clearTimeout(timeout);
+            document.getElementById("message").textContent = text;
+
+            timeout = setTimeout(function () {
+                document.getElementById("message").textContent = null;
+            }, 5000)
+        }
+
+        function startTodoListSession() {
+            var http = new XMLHttpRequest();
+            http.onreadystatechange = function () {
+                if (http.readyState == 4) {
+                    if (http.status < 400) {
+                        sessionData = JSON.parse(http.responseText);
+                        document.getElementById("id").innerText = sessionData.SessionId;
+                        populateTodoItems(sessionData.TodoItems);
+                    } else {
+                        myAlert(http.statusText);
+                    }
+                }
+            };
+            http.open("POST", "/api/session/");
+            http.setRequestHeader("Content-Type", "application/json");
+            http.send(id.toString());
+        }
+
+        function refreshSession() {
+            if (!sessionData) return;
+            var http = new XMLHttpRequest();
+            http.onreadystatechange = function () {
+                if (http.readyState == 4) {
+                    if (http.status < 400) {
+                        sessionData = JSON.parse(http.responseText);
+                        populateTodoItems(sessionData.TodoItems);
+                    } else {
+                        myAlert(http.statusText);
+                    }
+                }
+            };
+            http.open("GET", "/api/session/" + sessionData.SessionId + "?randomAvoidCache=" + Math.random());
+            http.send();
+
+            document.getElementById("newTodoItemContent").value = '';
+        }
+
+        function populateTodoItems(items) {
+            if (!items) return;
+            var list = document.getElementById('todoItemsList');
+            while (list.firstChild) {
+                list.removeChild(list.firstChild);
+            }
+            for (var i = 0; i < items.length; i++) {
+                var item = document.createElement('li');
+                item.appendChild(document.createTextNode(items[i].Content));
+                item.className = 'list-group-item';
+                list.appendChild(item);
+            }
+        }
+
+        function addNewTodoItem() {
+            if (!sessionData) return;
+            var content = document.getElementById("newTodoItemContent").value;
+            if (!content) return;
+            var id = 'id' + Math.floor(1 + Math.random() * 0x7FFFFFFF);
+            if (!sessionData.TodoItems) {
+                sessionData.TodoItems = [{ Id: id, Content: content }];
+            } else {
+                sessionData.TodoItems.push({ Id: id, Content: content });
+            }
+            var http = new XMLHttpRequest();
+            http.onreadystatechange = function () {
+                if (http.readyState == 4) {
+                    if (http.status < 400) {
+                        myAlert('item added.');
+                        refreshSession();
+                    } else {
+                        myAlert(http.statusText);
+                    }
+                }
+            }
+            http.open("PUT", "/api/session/" + sessionData.SessionId);
+            http.setRequestHeader("Content-Type", "application/json");
+            http.send(JSON.stringify(sessionData));
+        }
+
+        function deleteSession() {
+            if (!sessionData) return;
+            var http = new XMLHttpRequest();
+            http.onreadystatechange = function () {
+                if (http.readyState == 4) {
+                    if (http.status < 400) {
+                        myAlert('session deleted.');
+                        startTodoListSession();
+                    } else {
+                        myAlert(http.statusText);
+                    }
+                }
+            }
+            http.open("DELETE", "/api/session/" + sessionData.SessionId);
+            http.send();
+        }
+
+    </script>
+</body>
+
+</html>
