@@ -18,9 +18,18 @@ namespace Microsoft.ServiceFabric
             m_uri = new Uri(applicationName);
         }
 
-        public override string ToString() => this.ApplicationUri.ToString();
+        public NamedApplication(ServiceContext serviceContext)
+        {
+            if (serviceContext == null)
+            {
+                throw new ArgumentNullException(nameof(serviceContext));
+            }
+            m_uri = new Uri(serviceContext.CodePackageActivationContext.ApplicationName);
+        }
+
+        public override string ToString() => m_uri != null ? m_uri.ToString() : "null";
         
-        public static implicit operator Uri(NamedApplication applicationName) => applicationName.ApplicationUri;
+        public static implicit operator Uri(NamedApplication applicationName) => applicationName.m_uri;
 
         public NamedService AppendNamedService(string serviceName) => new NamedService(this, serviceName);
 
@@ -33,19 +42,7 @@ namespace Microsoft.ServiceFabric
         public override bool Equals(object obj)
            => (obj is NamedApplication) ? UriEquals(m_uri, ((NamedApplication)obj).m_uri) : false;
 
-        public override int GetHashCode() => this.ApplicationUri.GetHashCode();
-
-        private Uri ApplicationUri
-        {
-            get
-            {
-                if (m_uri == null)
-                {
-                    m_uri = new Uri(FabricRuntime.GetActivationContext().ApplicationName);
-                }
-                return m_uri;
-            }
-        }
+        public override int GetHashCode() => m_uri != null ? m_uri.GetHashCode() : 0;
 
         private static bool UriEquals(Uri u1, Uri u2)
         {

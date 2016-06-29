@@ -12,8 +12,8 @@ namespace Application1.Frontend.Controllers
     [Route("api/[controller]")]
     public sealed class SessionController : Controller
     {
-        private HttpClient httpClient;
-        private ServiceContext serviceContext;
+        private readonly HttpClient httpClient;
+        private readonly ServiceContext serviceContext;
 
         public SessionController(HttpClient httpClient, ServiceContext serviceContext)
         {
@@ -22,7 +22,7 @@ namespace Application1.Frontend.Controllers
         }
         
         [HttpGet("{sessionId}")]
-        public async Task<IActionResult> Get(string sessionId)
+        public async Task<IActionResult> GetAsync(string sessionId)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
             {
@@ -30,41 +30,29 @@ namespace Application1.Frontend.Controllers
             }
 
             var partitionKey = this.GetSessionServicePartitionKey(sessionId);
-            string requestUri = new NamedService(new NamedApplication(), "UserSessionService").BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
+            string requestUri = new NamedApplication(this.serviceContext)
+                                    .AppendNamedService("UserSessionService")
+                                    .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
                                     + $"api/session/{sessionId}";
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage r = await this.httpClient.SendAsync(request);
-            if (!r.IsSuccessStatusCode)
+            return new ContentResult
             {
-                return new StatusCodeResult((int)r.StatusCode);
-            }
-            return new ContentResult()
-            {
-                Content = await r.Content.ReadAsStringAsync(),
-                ContentType = "application/json",
-                StatusCode = (int)r.StatusCode
+                Content = await this.httpClient.GetStringAsync(requestUri),
+                ContentType = "application/json"
             };
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post()
+        public async Task<IActionResult> PostAsync()
         {
             string newSessionId = Guid.NewGuid().ToString();
             var partitionKey = this.GetSessionServicePartitionKey(newSessionId);
-            string requestUri = new NamedService(new NamedApplication(), "UserSessionService").BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
+            string requestUri = new NamedApplication(this.serviceContext)
+                                    .AppendNamedService("UserSessionService")
+                                    .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
                                     + $"api/session/{newSessionId}";
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri)
-            {
-                Content = new StreamContent(this.HttpContext.Request.Body)
-            };
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage r = await this.httpClient.SendAsync(request);
-            if (!r.IsSuccessStatusCode)
-            {
-                return new StatusCodeResult((int)r.StatusCode);
-            }
-            return new ContentResult()
+            HttpResponseMessage r = await this.httpClient.PostAsync(requestUri, new StreamContent(this.HttpContext.Request.Body));
+            r.EnsureSuccessStatusCode();
+            return new ContentResult
             {
                 Content = await r.Content.ReadAsStringAsync(),
                 ContentType = "application/json",
@@ -73,7 +61,7 @@ namespace Application1.Frontend.Controllers
         }
         
         [HttpPut("{sessionId}")]
-        public async Task<IActionResult> Put(string sessionId)
+        public async Task<IActionResult> PutAsync(string sessionId)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
             {
@@ -81,22 +69,15 @@ namespace Application1.Frontend.Controllers
             }
 
             var partitionKey = this.GetSessionServicePartitionKey(sessionId);
-            string requestUri = new NamedService(new NamedApplication(), "UserSessionService").BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
+            string requestUri = new NamedApplication(this.serviceContext)
+                                    .AppendNamedService("UserSessionService")
+                                    .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
                                     + $"api/session/{sessionId}";
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, requestUri)
-            {
-                Content = new StreamContent(this.Request.Body)
-            };
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            HttpResponseMessage r = await this.httpClient.SendAsync(request);
-            if (!r.IsSuccessStatusCode)
-            {
-                return new StatusCodeResult((int)r.StatusCode);
-            }
-
-            return new ContentResult()
+            HttpContent content = new StreamContent(this.Request.Body);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            HttpResponseMessage r = await this.httpClient.PutAsync(requestUri, content);
+            r.EnsureSuccessStatusCode();
+            return new ContentResult
             {
                 Content = await r.Content.ReadAsStringAsync(),
                 ContentType = "application/json",
@@ -105,7 +86,7 @@ namespace Application1.Frontend.Controllers
         }
         
         [HttpDelete("{sessionId}")]
-        public async Task<IActionResult> Delete(string sessionId)
+        public async Task<IActionResult> DeleteAsync(string sessionId)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
             {
@@ -113,11 +94,11 @@ namespace Application1.Frontend.Controllers
             }
 
             var partitionKey = this.GetSessionServicePartitionKey(sessionId);
-            string requestUri = new NamedService(new NamedApplication(), "UserSessionService").BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
+            string requestUri = new NamedApplication(this.serviceContext)
+                                    .AppendNamedService("UserSessionService")
+                                    .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
                                     + $"api/session/{sessionId}";
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, requestUri);
-            HttpResponseMessage r = await this.httpClient.SendAsync(request);
-
+            HttpResponseMessage r = await this.httpClient.DeleteAsync(requestUri);
             return new StatusCodeResult((int)r.StatusCode);
         }
 

@@ -4,6 +4,7 @@ using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Http;
 using Microsoft.ServiceFabric.Http.Client;
+using Microsoft.ServiceFabric.Http.Utilities;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using System;
@@ -51,41 +52,44 @@ namespace Application1.UserSessionService
         protected override Task RunAsync(CancellationToken cancellationToken)
         {
             this.ServiceWatchdog.StartMonitoring(cancellationToken);
-            this.StartTrimmingData(cancellationToken);
+            Task.Run(() => this.TrimmingDataAsync(cancellationToken));
 
             return base.RunAsync(cancellationToken);
         }
         #endregion StatefulService
 
         #region Data trimming
-        private void StartTrimmingData(CancellationToken cancellationToken)
+        private async Task TrimmingDataAsync(CancellationToken cancellationToken)
         {
-            TimeSpan frequency = TimeSpan.FromSeconds(60);
-
-            this.dataTrimmingTimer = new Timer(async (state) =>
+            while(!cancellationToken.IsCancellationRequested)
             {
                 var sessionDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, SessionData>>("SessionData");
-                using (var tx = this.StateManager.CreateTransaction())
+                await ExponentialBackoff.Run(async () =>
                 {
-                    var sessions = await sessionDictionary.CreateEnumerableAsync(tx);
-                    using (var e = sessions.GetAsyncEnumerator())
+                    using (var tx = this.StateManager.CreateTransaction())
                     {
-                        while (await e.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+                        List<string> dataToRemove = new List<string>();
+                        var sessions = await sessionDictionary.CreateEnumerableAsync(tx);
+                        using (var e = sessions.GetAsyncEnumerator())
                         {
-                            if (DateTimeOffset.UtcNow.Subtract(e.Current.Value.LastAccessedOn).TotalHours > 1)
+                            while (await e.MoveNextAsync(cancellationToken))
                             {
-                                await sessionDictionary.TryRemoveAsync(tx, e.Current.Key);
+                                if (DateTimeOffset.UtcNow.Subtract(e.Current.Value.LastAccessedOn).TotalHours > 1)
+                                {
+                                    dataToRemove.Add(e.Current.Key);
+                                }
                             }
                         }
+                        foreach (var s in dataToRemove)
+                        {
+                            await sessionDictionary.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
+                        }
+                        await tx.CommitAsync();
                     }
-
-                    await tx.CommitAsync();
-                }
-                this.dataTrimmingTimer.Change(frequency, Timeout.InfiniteTimeSpan);
-            }, null, frequency, Timeout.InfiniteTimeSpan);
+                }, cancellationToken);
+                await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
+            }
         }
-
-        private Timer dataTrimmingTimer;
         #endregion
         
         #region Provide ServiceWatchdog
@@ -99,11 +103,11 @@ namespace Application1.UserSessionService
         private HttpClient CreateHttpClient()
         {
             // TODO: To enable circuit breaker pattern, set proper values in CircuitBreakerHttpMessageHandler constructor
-            var handler = new CircuitBreakerHttpMessageHandler(int.MaxValue, TimeSpan.Zero,
+            var handler = new CircuitBreakerHttpMessageHandler(10, TimeSpan.FromSeconds(10),
                             new HttpServiceClientHandler(
                                 new HttpServiceClientExceptionHandler(
                                     new HttpServiceClientStatusCodeRetryHandler(
-                                        new HttpTraceMessageHandler(this.Context, new HttpClientHandler())))));
+                                        new HttpTraceMessageHandler(this.Context)))));
             return new HttpClient(handler);
         }
         private Lazy<HttpClient> httpClient;

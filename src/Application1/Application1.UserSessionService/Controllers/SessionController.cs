@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.ServiceFabric.Http;
+using Microsoft.ServiceFabric.Http.Utilities;
 using System;
 using System.Fabric;
 using System.Threading.Tasks;
@@ -20,12 +20,15 @@ namespace Application1.UserSessionService.Controllers
         [HttpGet]
         public async Task<long> Get()
         {
-            long count;
+            long count = 0;
             var sessions = await this.GetSessionsDataAsync();
-            using (var tx = this.stateManager.CreateTransaction())
+            await ExponentialBackoff.Run(async () =>
             {
-                count = await sessions.GetCountAsync(tx);
-            }
+                using (var tx = this.stateManager.CreateTransaction())
+                {
+                    count = await sessions.GetCountAsync(tx);
+                }
+            });
             return count;
         }
 
@@ -87,70 +90,68 @@ namespace Application1.UserSessionService.Controllers
         {
             SessionData s = null;
             var sessions = await this.GetSessionsDataAsync();
-            using (var tx = this.stateManager.CreateTransaction())
+            await ExponentialBackoff.Run(async () =>
             {
-                var session = await sessions.TryGetValueAsync(tx, sessionId);
-                if (session.HasValue)
+                using (var tx = this.stateManager.CreateTransaction())
                 {
-                    s = session.Value;
-                    s.LastAccessedOn = DateTimeOffset.UtcNow;
-                    await sessions.SetAsync(tx, sessionId, s);
+                    var session = await sessions.TryGetValueAsync(tx, sessionId);
+                    if (session.HasValue)
+                    {
+                        s = session.Value;
+                        SessionData s2 = new SessionData(s.SessionId, s.CreatedOn, s.LastModifiedOn, DateTimeOffset.UtcNow, s.TodoItems);
+                        await sessions.SetAsync(tx, sessionId, s2);
+                    }
+                    await tx.CommitAsync();
                 }
-                await tx.CommitAsync();
-            }
+            });
             return s;
         }
 
         private async Task<SessionData> CreateSessionAsync(string sessionId)
         {
-            SessionData s = new SessionData()
-            {
-                SessionId = sessionId,
-                TodoItems = new TodoItemData[] { }
-            };
-            s.CreatedOn = s.LastAccessedOn = s.LastModifiedOn = DateTimeOffset.UtcNow;
-
+            SessionData s = null;
             var sessions = await this.GetSessionsDataAsync();
-            using (var tx = this.stateManager.CreateTransaction())
+            await ExponentialBackoff.Run(async () =>
             {
-                await sessions.AddAsync(tx, sessionId, s);
-                await tx.CommitAsync();
-            }
-
+                s = new SessionData(sessionId, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+                using (var tx = this.stateManager.CreateTransaction())
+                {
+                    await sessions.AddAsync(tx, sessionId, s);
+                    await tx.CommitAsync();
+                }
+            });
             return s;
         }
 
         private async Task UpdateSessionAsync(string sessionId, SessionData data)
         {
             var sessions = await this.GetSessionsDataAsync();
-            using (var tx = this.stateManager.CreateTransaction())
+            await ExponentialBackoff.Run(async () =>
             {
-                var session = await sessions.TryGetValueAsync(tx, sessionId);
-                if (session.HasValue)
+                using (var tx = this.stateManager.CreateTransaction())
                 {
-                    data.CreatedOn = session.Value.CreatedOn;
-                    data.LastAccessedOn = data.LastModifiedOn = DateTimeOffset.UtcNow;
+                    var session = await sessions.TryGetValueAsync(tx, sessionId);
+                    SessionData s = session.HasValue ? new SessionData(sessionId, session.Value.CreatedOn, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, data.TodoItems)
+                                                     : new SessionData(sessionId, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, DateTime.UtcNow, data.TodoItems);
+                    await sessions.SetAsync(tx, sessionId, data);
+                    await tx.CommitAsync();
                 }
-                else
-                {
-                    data.CreatedOn = data.LastModifiedOn = data.LastAccessedOn = DateTimeOffset.UtcNow;
-                }
-                
-                await sessions.SetAsync(tx, sessionId, data);
-                await tx.CommitAsync();
-            }
+            });
         }
 
         private async Task DeleteSessionAsync(string sessionId)
         {
             var sessions = await this.GetSessionsDataAsync();
-            using (var tx = this.stateManager.CreateTransaction())
+            await ExponentialBackoff.Run(async () =>
             {
-                await sessions.TryRemoveAsync(tx, sessionId);
-                await tx.CommitAsync();
-            }
+                using (var tx = this.stateManager.CreateTransaction())
+                {
+                    await sessions.TryRemoveAsync(tx, sessionId);
+                    await tx.CommitAsync();
+                }
+            });
         }
-
+        
         private Task<IReliableDictionary<string, SessionData>> GetSessionsDataAsync()
         {
             return this.stateManager.GetOrAddAsync<IReliableDictionary<string, SessionData>>("SessionData");

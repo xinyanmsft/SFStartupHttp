@@ -145,11 +145,11 @@ namespace Application1.WatchdogService
         private HttpClient CreateHttpClient()
         {
             // TODO: To enable circuit breaker pattern, set proper values in CircuitBreakerHttpMessageHandler constructor
-            var handler = new CircuitBreakerHttpMessageHandler(int.MaxValue, TimeSpan.Zero,
+            var handler = new CircuitBreakerHttpMessageHandler(10, TimeSpan.FromSeconds(10),
                 new HttpServiceClientHandler(
                     new HttpServiceClientExceptionHandler(
                         new HttpServiceClientStatusCodeRetryHandler(
-                            new HttpTraceMessageHandler(this.Context, new HttpClientHandler())))));
+                            new HttpTraceMessageHandler(this.Context)))));
             return new HttpClient(handler);
         }
 
