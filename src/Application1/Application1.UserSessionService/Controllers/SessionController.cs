@@ -133,7 +133,7 @@ namespace Application1.UserSessionService.Controllers
                     var session = await sessions.TryGetValueAsync(tx, sessionId);
                     SessionData s = session.HasValue ? new SessionData(sessionId, session.Value.CreatedOn, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, data.TodoItems)
                                                      : new SessionData(sessionId, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, DateTime.UtcNow, data.TodoItems);
-                    await sessions.SetAsync(tx, sessionId, data);
+                    await sessions.SetAsync(tx, sessionId, s);
                     await tx.CommitAsync();
                 }
             });
