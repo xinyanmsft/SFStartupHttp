@@ -50,7 +50,7 @@ namespace Application1.WatchdogService
                    }, cancellationToken),
                    this.CheckServiceHealthAsync(new Uri($"{applicationName}/UserSessionService"), async (serviceName, partition) =>
                    {
-                       string requestUri = new NamedService(serviceName).BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: 0) + "api/session";
+                       string requestUri = new NamedService(serviceName).BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: 0) + "api/sessiondata/";
                        var response = await httpClient.GetAsync(requestUri);
                        return response.IsSuccessStatusCode ? null : $"Request {response.RequestMessage.RequestUri} failed with {response.StatusCode}";
                    }, cancellationToken));

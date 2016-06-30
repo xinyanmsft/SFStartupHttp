@@ -33,9 +33,10 @@ namespace Application1.Frontend.Controllers
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("UserSessionService")
                                     .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/session/{sessionId}";
+                                    + $"api/sessiondata/{sessionId}";
             return new ContentResult
             {
+                StatusCode = 200,
                 Content = await this.httpClient.GetStringAsync(requestUri),
                 ContentType = "application/json"
             };
@@ -49,7 +50,7 @@ namespace Application1.Frontend.Controllers
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("UserSessionService")
                                     .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/session/{newSessionId}";
+                                    + $"api/sessiondata/{newSessionId}";
             HttpResponseMessage r = await this.httpClient.PostAsync(requestUri, new StreamContent(this.HttpContext.Request.Body));
             r.EnsureSuccessStatusCode();
             return new ContentResult
@@ -72,7 +73,7 @@ namespace Application1.Frontend.Controllers
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("UserSessionService")
                                     .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/session/{sessionId}";
+                                    + $"api/sessiondata/{sessionId}";
             HttpContent content = new StreamContent(this.Request.Body);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             HttpResponseMessage r = await this.httpClient.PutAsync(requestUri, content);
@@ -97,7 +98,7 @@ namespace Application1.Frontend.Controllers
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("UserSessionService")
                                     .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/session/{sessionId}";
+                                    + $"api/sessiondata/{sessionId}";
             HttpResponseMessage r = await this.httpClient.DeleteAsync(requestUri);
             return new StatusCodeResult((int)r.StatusCode);
         }

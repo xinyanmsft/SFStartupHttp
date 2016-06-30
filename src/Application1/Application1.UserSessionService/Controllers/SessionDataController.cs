@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 namespace Application1.UserSessionService.Controllers
 {
     [Route("api/[controller]")]
-    public class SessionController : Controller
+    public class SessionDataController : Controller
     {
-        public SessionController(IReliableStateManager stateManager, ServiceContext serviceContext)
+        public SessionDataController(IReliableStateManager stateManager, ServiceContext serviceContext)
         {
             this.serviceContext = serviceContext;
             this.stateManager = stateManager;
         }
 
         [HttpGet]
-        public async Task<long> Get()
+        public async Task<long> GetAsync()
         {
             long count = 0;
             var sessions = await this.GetSessionsDataAsync();
@@ -33,7 +33,7 @@ namespace Application1.UserSessionService.Controllers
         }
 
         [HttpGet("{sessionId}")]
-        public async Task<IActionResult> Get(string sessionId)
+        public async Task<IActionResult> GetAsync(string sessionId)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
             {
@@ -50,7 +50,7 @@ namespace Application1.UserSessionService.Controllers
         }
         
         [HttpPost("{sessionId}")]
-        public async Task<IActionResult> Post(string sessionId)
+        public async Task<IActionResult> PostAsync(string sessionId)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
             {
@@ -62,7 +62,7 @@ namespace Application1.UserSessionService.Controllers
         }
 
         [HttpPut("{sessionId}")]
-        public async Task<IActionResult> Put(string sessionId, [FromBody]SessionData value)
+        public async Task<IActionResult> PutAsync(string sessionId, [FromBody]SessionData value)
         {
             if (string.IsNullOrWhiteSpace(sessionId) || value == null)
             {
@@ -74,7 +74,7 @@ namespace Application1.UserSessionService.Controllers
         }
 
         [HttpDelete("{sessionId}")]
-        public async Task<IActionResult> Delete(string sessionId)
+        public async Task<IActionResult> DeleteAsync(string sessionId)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
             {
