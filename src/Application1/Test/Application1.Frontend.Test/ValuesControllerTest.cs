@@ -12,7 +12,7 @@ using System.Text;
 namespace Application1.Frontend.Test
 {
     [TestClass]
-    public class SessionControllerTest
+    public class ValuesControllerTest
     {
         [TestInitialize]
         public void TestInitialize()
@@ -21,7 +21,7 @@ namespace Application1.Frontend.Test
             HttpClient testHttpClient = new HttpClient(this.mockHandler);
             var serviceContext = MockServiceContextFactory.CreateStatelessServiceContext();
 
-            this.controller = new SessionController(testHttpClient, serviceContext);
+            this.controller = new ValuesController(testHttpClient, serviceContext);
             this.controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()                
@@ -35,7 +35,7 @@ namespace Application1.Frontend.Test
             { 
                Content = new StringContent("Test content")
             };
-            var result = (ContentResult) controller.GetAsync("testSession").Result;
+            var result = (ContentResult) controller.GetAsync("testId").Result;
             Assert.AreEqual(result.StatusCode, 200);
             Assert.AreEqual(result.Content, "Test content");
         }
@@ -52,7 +52,7 @@ namespace Application1.Frontend.Test
             Assert.AreEqual(result.StatusCode, 200);
         }
 
-        private SessionController controller;
+        private ValuesController controller;
         private MockHttpClientHandler mockHandler;
     }
 }

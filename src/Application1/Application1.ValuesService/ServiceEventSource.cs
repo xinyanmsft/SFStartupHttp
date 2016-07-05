@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Http;
 
-namespace Application1.UserSessionService
+namespace Application1.ValuesService
 {
-    [EventSource(Name = "MyCompany-Application1-UserSessionService")]
+    [EventSource(Name = "MyCompany-Application1-ValuesService")]
     internal sealed class ServiceEventSource : EventSource
     {
         public static readonly ServiceEventSource Current = new ServiceEventSource();

@@ -28,7 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Application1.Frontend\Application1.Frontend.xproj" />
-    <ProjectReference Include="..\Application1.UserSessionService\Application1.UserSessionService.xproj" />
+    <ProjectReference Include="..\Application1.ValuesService\Application1.ValuesService.xproj" />
     <ProjectReference Include="..\Application1.WatchdogService\Application1.WatchdogService.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

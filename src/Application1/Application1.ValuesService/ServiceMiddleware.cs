@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Application1.UserSessionService
+namespace Application1.ValuesService
 {
     internal class ServiceMiddleware
     {

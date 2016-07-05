@@ -5,7 +5,7 @@ using System.Fabric;
 using System.Fabric.Health;
 using System.Threading;
 
-namespace Application1.UserSessionService
+namespace Application1.ValuesService
 {
     internal sealed class ServiceWatchdog
     {
@@ -49,8 +49,8 @@ namespace Application1.UserSessionService
 
                     stopwatch.Restart();
                     int requestsPerSecond = Convert.ToInt32((double)totalRequests / reportIntervalSeconds);
-                    this.partition.ReportLoad(new LoadMetric[] { new LoadMetric("UserSessionService.RequestPerSecond", requestsPerSecond),
-                                                                 new LoadMetric("UserSessionService.ConcurrentRequest", concurrentRequests) });
+                    this.partition.ReportLoad(new LoadMetric[] { new LoadMetric("ValuesService.RequestPerSecond", requestsPerSecond),
+                                                                 new LoadMetric("ValuesService.ConcurrentRequest", concurrentRequests) });
 
                     this.loadReportTimer.Change(loadReportFrequency, Timeout.InfiniteTimeSpan);
                 }

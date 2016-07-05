@@ -1,14 +1,15 @@
-﻿using Application1.UserSessionService.Controllers;
+﻿using Application1.ValuesService;
+using Application1.ValuesService.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Unittest.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Application1.UserSessionService.Test
+namespace Application1.ValuesService.Test
 {
     [TestClass]
-    public class SessionControllerTest
+    public class ValuesEntityControllerTest
     {
         [TestInitialize]
         public void TestInitialize()
@@ -16,7 +17,7 @@ namespace Application1.UserSessionService.Test
             this.stateManager = new MockReliableStateManager();
             var serviceContext = MockServiceContextFactory.CreateStatefulServiceContext();
 
-            this.controller = new SessionDataController(this.stateManager, serviceContext);
+            this.controller = new ValuesController(this.stateManager, serviceContext);
             this.controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext()                
@@ -26,20 +27,20 @@ namespace Application1.UserSessionService.Test
         [TestMethod]
         public void PostAndGetTest()
         {
-            string sessionId = Guid.NewGuid().ToString();
-            var result1 = this.controller.PostAsync(sessionId).Result;
+            string id = Guid.NewGuid().ToString();
+            var result1 = this.controller.PostAsync(id).Result;
             JsonResult json1 = (JsonResult)result1;
-            SessionData data1 = (SessionData)json1.Value;
-            Assert.AreEqual(data1.SessionId, sessionId);
+            ValuesEntity data1 = (ValuesEntity)json1.Value;
+            Assert.AreEqual(data1.Id, id);
 
-            var result2 = this.controller.GetAsync(sessionId).Result;
+            var result2 = this.controller.GetAsync(id).Result;
             JsonResult json2 = (JsonResult)result2;
-            SessionData data2 = (SessionData)json2.Value;
-            Assert.AreEqual(data1.SessionId, data2.SessionId);
+            ValuesEntity data2 = (ValuesEntity)json2.Value;
+            Assert.AreEqual(data1.Id, data2.Id);
             Assert.AreEqual(data1.CreatedOn, data2.CreatedOn);
         }
         
-        private SessionDataController controller;
+        private ValuesController controller;
         private MockReliableStateManager stateManager;
     }
 }

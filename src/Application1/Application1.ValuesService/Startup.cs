@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.Http.Service;
 using Newtonsoft.Json.Serialization;
 
-namespace Application1.UserSessionService
+namespace Application1.ValuesService
 {
     public class Startup
     {

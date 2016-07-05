@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.Serialization;
 
-namespace Application1.UserSessionService
+namespace Application1.ValuesService
 {
     /// <summary>
     /// Data types stored in Service Fabric reliable collection should be immutable, as explained in this article
@@ -11,19 +11,19 @@ namespace Application1.UserSessionService
     /// 
     /// </summary>
     [DataContract]
-    public sealed class SessionData
+    public sealed class ValuesEntity
     {
-        public SessionData(string id, DateTimeOffset createdOn, DateTimeOffset lastModifiedOn, DateTimeOffset lastAccessedOn, IEnumerable<TodoItemData> items = null)
+        public ValuesEntity(string id, DateTimeOffset createdOn, DateTimeOffset lastModifiedOn, DateTimeOffset lastAccessedOn, IEnumerable<string> values = null)
         {
-            this.SessionId = id;
+            this.Id = id;
             this.CreatedOn = createdOn;
             this.LastModifiedOn = lastModifiedOn;
             this.LastAccessedOn = lastAccessedOn;
-            this.TodoItems = items == null ? ImmutableList<TodoItemData>.Empty : items.ToImmutableList();
+            this.Values = values == null ? ImmutableList<string>.Empty : values.ToImmutableList();
         }
 
         [DataMember]
-        public readonly string SessionId;
+        public readonly string Id;
 
         [DataMember]
         public readonly DateTimeOffset CreatedOn;
@@ -35,29 +35,13 @@ namespace Application1.UserSessionService
         public readonly DateTimeOffset LastAccessedOn;
 
         [DataMember]
-        public IEnumerable<TodoItemData> TodoItems { get; private set; }
+        public IEnumerable<string> Values { get; private set; }
 
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
             // Convert the deserialized collection to an immutable collection
-            this.TodoItems = this.TodoItems == null ? ImmutableList<TodoItemData>.Empty : TodoItems.ToImmutableList();
+            this.Values = this.Values == null ? ImmutableList<string>.Empty : this.Values.ToImmutableList();
         }
-    }
-
-    [DataContract]
-    public sealed class TodoItemData
-    {
-        public TodoItemData(string id, string content)
-        {
-            this.Id = id;
-            this.Content = content;
-        }
-
-        [DataMember]
-        public readonly string Id;
-
-        [DataMember]
-        public readonly string Content;
     }
 }

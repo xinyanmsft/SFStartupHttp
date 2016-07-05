@@ -48,9 +48,9 @@ namespace Application1.WatchdogService
                        var response = await httpClient.GetAsync(requestUri);
                        return response.IsSuccessStatusCode ? null : $"Request {response.RequestMessage.RequestUri} failed with {response.StatusCode}";
                    }, cancellationToken),
-                   this.CheckServiceHealthAsync(new Uri($"{applicationName}/UserSessionService"), async (serviceName, partition) =>
+                   this.CheckServiceHealthAsync(new Uri($"{applicationName}/ValuesService"), async (serviceName, partition) =>
                    {
-                       string requestUri = new NamedService(serviceName).BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: 0) + "api/sessiondata/";
+                       string requestUri = new NamedService(serviceName).BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: 0) + "api/values/";
                        var response = await httpClient.GetAsync(requestUri);
                        return response.IsSuccessStatusCode ? null : $"Request {response.RequestMessage.RequestUri} failed with {response.StatusCode}";
                    }, cancellationToken));

@@ -3,9 +3,9 @@
   <Parameters>
     <Parameter Name="WatchdogService_InstanceCount" DefaultValue="1" />
     <Parameter Name="Frontend_InstanceCount" DefaultValue="-1" />
-    <Parameter Name="UserSessionService_TargetReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="UserSessionService_MinReplicaSetSize" DefaultValue="1" />
-    <Parameter Name="UserSessionService_PartitionCount" DefaultValue="1" />
+    <Parameter Name="ValuesService_TargetReplicaSetSize" DefaultValue="3" />
+    <Parameter Name="ValuesService_MinReplicaSetSize" DefaultValue="1" />
+    <Parameter Name="ValuesService_PartitionCount" DefaultValue="1" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -18,7 +18,7 @@
     </Policies>
   </ServiceManifestImport>
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="Application1.UserSessionServicePkg" ServiceManifestVersion="1.0.0" />
+    <ServiceManifestRef ServiceManifestName="Application1.ValuesServicePkg" ServiceManifestVersion="1.0.0" />
     <ConfigOverrides />
   </ServiceManifestImport>
   <ServiceManifestImport>
@@ -36,12 +36,12 @@
         <SingletonPartition />
       </StatelessService>
     </Service>
-    <Service Name="UserSessionService">
-      <StatefulService ServiceTypeName="UserSessionServiceType" TargetReplicaSetSize="[UserSessionService_TargetReplicaSetSize]" MinReplicaSetSize="[UserSessionService_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[UserSessionService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+    <Service Name="ValuesService">
+      <StatefulService ServiceTypeName="ValuesServiceType" TargetReplicaSetSize="[ValuesService_TargetReplicaSetSize]" MinReplicaSetSize="[ValuesService_MinReplicaSetSize]">
+        <UniformInt64Partition PartitionCount="[ValuesService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
         <LoadMetrics>
-          <LoadMetric Name="UserSessionServiceRequestPerSecond" DefaultLoad="1" PrimaryDefaultLoad="1" Weight="Low" />
-          <LoadMetric Name="UserSessionServiceConcurrentRequest" DefaultLoad="1" PrimaryDefaultLoad="1" Weight="Low" />
+          <LoadMetric Name="ValuesServiceRequestPerSecond" DefaultLoad="1" PrimaryDefaultLoad="1" Weight="Low" />
+          <LoadMetric Name="ValuesServiceConcurrentRequest" DefaultLoad="1" PrimaryDefaultLoad="1" Weight="Low" />
         </LoadMetrics>
       </StatefulService>
     </Service>

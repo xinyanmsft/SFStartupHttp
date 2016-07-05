@@ -83,7 +83,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Http.CLR\Microsoft.ServiceFabric.Http.CLR.csproj">
+    <ProjectReference Include="..\..\Libs\Microsoft.ServiceFabric.Http.CLR\Microsoft.ServiceFabric.Http.CLR.csproj">
       <Project>{9cecf663-ffb0-4867-9071-c0cae4ee1f0d}</Project>
       <Name>Microsoft.ServiceFabric.Http.CLR</Name>
     </ProjectReference>

@@ -14,7 +14,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Application1.UserSessionService
+namespace Application1.ValuesService
 {
     /// <summary>
     /// A specialized stateless service for hosting ASP.NET Core web apps.
@@ -63,30 +63,30 @@ namespace Application1.UserSessionService
         {
             while(!cancellationToken.IsCancellationRequested)
             {
-                var sessionDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, SessionData>>("SessionData");
-                await ExponentialBackoff.Run(async () =>
+                var entities = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, ValuesEntity>>("Values");
+                await ExponentialBackoff.Run((Func<Task>)(async () =>
                 {
                     using (var tx = this.StateManager.CreateTransaction())
                     {
                         List<string> dataToRemove = new List<string>();
-                        var sessions = await sessionDictionary.CreateEnumerableAsync(tx);
-                        using (var e = sessions.GetAsyncEnumerator())
+                        var values = await entities.CreateEnumerableAsync(tx);
+                        using (var e = values.GetAsyncEnumerator())
                         {
                             while (await e.MoveNextAsync(cancellationToken))
                             {
-                                if (DateTimeOffset.UtcNow.Subtract(e.Current.Value.LastAccessedOn).TotalHours > 1)
+                                if (DateTimeOffset.UtcNow.Subtract((DateTimeOffset)e.Current.Value.LastAccessedOn).TotalHours > 1)
                                 {
-                                    dataToRemove.Add(e.Current.Key);
+                                    dataToRemove.Add((string)e.Current.Key);
                                 }
                             }
                         }
                         foreach (var s in dataToRemove)
                         {
-                            await sessionDictionary.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
+                            await entities.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
                         }
                         await tx.CommitAsync();
                     }
-                }, cancellationToken);
+                }), cancellationToken);
                 await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
             }
         }
