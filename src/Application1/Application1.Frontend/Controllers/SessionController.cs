@@ -50,7 +50,7 @@ namespace Application1.Frontend.Controllers
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("UserSessionService")
                                     .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/sessiondata/{newSessionId}";
+                                    + $"api/sessiondata/{newSessionId}";    // TODO: feedback: do not do string append. 
             HttpResponseMessage r = await this.httpClient.PostAsync(requestUri, new StreamContent(this.HttpContext.Request.Body));
             r.EnsureSuccessStatusCode();
             return new ContentResult
