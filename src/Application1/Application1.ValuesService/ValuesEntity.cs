@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 
 namespace Application1.ValuesService
 {
+#if ImmutableCollection
     /// <summary>
     /// Data types stored in Service Fabric reliable collection should be immutable, as explained in this article
     /// https://azure.microsoft.com/en-us/documentation/articles/service-fabric-work-with-reliable-collections/
@@ -44,4 +45,27 @@ namespace Application1.ValuesService
             this.Values = this.Values == null ? ImmutableList<string>.Empty : this.Values.ToImmutableList();
         }
     }
+#else
+    public sealed class ValuesEntity
+    {
+        public ValuesEntity()
+        {
+        }
+
+        public ValuesEntity(string id, DateTimeOffset createdOn, DateTimeOffset lastModifiedOn, DateTimeOffset lastAccessedOn, IEnumerable<string> values = null)
+        {
+            this.Id = id;
+            this.CreatedOn = createdOn;
+            this.LastModifiedOn = lastModifiedOn;
+            this.LastAccessedOn = lastAccessedOn;
+            this.Values = values ?? new string[] { };
+        }
+
+        public string Id { get; set; }
+        public DateTimeOffset CreatedOn { get; set; }
+        public DateTimeOffset LastModifiedOn { get; set; }
+        public DateTimeOffset LastAccessedOn { get; set; }
+        public IEnumerable<string> Values { get; set; }
+    }
+#endif
 }

@@ -40,18 +40,13 @@
       <StatefulService ServiceTypeName="ValuesServiceType" TargetReplicaSetSize="[ValuesService_TargetReplicaSetSize]" MinReplicaSetSize="[ValuesService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[ValuesService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
         <LoadMetrics>
-          <LoadMetric Name="ValuesServiceRequestPerSecond" DefaultLoad="1" PrimaryDefaultLoad="1" Weight="Low" />
-          <LoadMetric Name="ValuesServiceConcurrentRequest" DefaultLoad="1" PrimaryDefaultLoad="1" Weight="Low" />
+          <LoadMetric Name="ValuesService.DataCount" DefaultLoad="1" Weight="Low" />
         </LoadMetrics>
       </StatefulService>
     </Service>
     <Service Name="Frontend">
       <StatelessService ServiceTypeName="FrontendType" InstanceCount="[Frontend_InstanceCount]">
         <SingletonPartition />
-        <LoadMetrics>
-          <LoadMetric Name="FrontendRequestPerSecond" DefaultLoad="1" PrimaryDefaultLoad="1" Weight="Low" />
-          <LoadMetric Name="FrontendConcurrentRequest" DefaultLoad="1" PrimaryDefaultLoad="1" Weight="Low" />
-        </LoadMetrics>
       </StatelessService>
     </Service>
   </DefaultServices>

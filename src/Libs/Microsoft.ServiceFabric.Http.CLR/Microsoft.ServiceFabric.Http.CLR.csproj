@@ -84,6 +84,9 @@
     <Compile Include="..\Microsoft.ServiceFabric.Http\Utilities\ExponentialBackoff.cs">
       <Link>ExponentialBackoff.cs</Link>
     </Compile>
+    <Compile Include="..\Microsoft.ServiceFabric.Http\Utilities\ReliableCollectionRetry.cs">
+      <Link>ReliableCollectionRetry.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
