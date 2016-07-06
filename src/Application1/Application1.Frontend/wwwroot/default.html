@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Values List</title>
+    <title>List</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
     <style>
@@ -25,12 +25,12 @@
         <div class="col-lg-3">
             <div class="input-group">
                 <span class="input-group-btn">
-                    <button class="btn btn-default" onclick="startValuesEntity()" type="button">Start a new entity</button>
+                    <button class="btn btn-default" onclick="startValuesEntity()" type="button">Create a new list</button>
                 </span>                
             </div>
-            <h4>Id: <span class="label label-info" id="id"></span></h4>
+            <h4>List id: <span class="label label-info" id="id"></span></h4>
             <div class="input-group">
-                <input type="text" class="form-control" id="newValueContent" placeholder="Add new value ...">
+                <input type="text" class="form-control" id="newValueContent" placeholder="Add new value to the list ...">
                 <span class="input-group-btn">
                     <button class="btn btn-default" onclick="addNewValue()" type="button">Add</button>
                 </span>
@@ -39,7 +39,7 @@
                 <ul class="list-group" id="valuesList">
                 </ul>
             </div>
-            <button type="button" class="btn btn-primary" style="visibility:visible" onclick="deleteEntity()" id="btnDelete">Delete this entity</button>
+            <button type="button" class="btn btn-primary" style="visibility:visible" onclick="deleteEntity()" id="btnDelete">Delete this list</button>
             <p id="message" class="text-danger"></p>
         </div>
     </div>
