@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Http.Client
 {
+    /// <summary>
+    /// HttpTraceMessageHandler is a HTTP message handler that traces the request by 1) flows the CorrelationId 
+    /// across service boundary and 2) output the traces to ETW.
+    /// </summary>
     public sealed class HttpTraceMessageHandler : DelegatingHandler
     {
         public HttpTraceMessageHandler(ServiceContext context, HttpMessageHandler innerHandler = null) : base(innerHandler ?? new HttpClientHandler())

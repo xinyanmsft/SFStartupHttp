@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace Application1.WatchdogService
 {
     /// <summary>
-    /// An instance of this class is created for each service instance by the Service Fabric runtime. 
+    /// The WatchdogService is responsible for continuously monitor other services, and report Service Fabric health events.
     /// </summary>
     internal sealed class WatchdogService : StatelessService
     {

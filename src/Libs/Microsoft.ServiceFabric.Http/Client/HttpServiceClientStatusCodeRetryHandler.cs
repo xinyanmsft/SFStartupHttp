@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Http.Client
 {
+    /// <summary>
+    /// HttpServiceClientStatusCodeRetryHandler is a HTTP message handler. It needs to be wrapped by HttpServiceClientHandler. 
+    /// It tells the HttpServiceClientHandler to re-resolve a HTTP endpoint from Service Fabric reliable service when certain 
+    /// conditions are met, such as receiving 503 status code.
+    /// </summary>
     public sealed class HttpServiceClientStatusCodeRetryHandler : DelegatingHandler
     {
         public HttpServiceClientStatusCodeRetryHandler(HttpMessageHandler innerHandler, int[] statusCodeToRetry = null) : base(innerHandler)

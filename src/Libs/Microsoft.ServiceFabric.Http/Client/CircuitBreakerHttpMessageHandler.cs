@@ -6,6 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Http.Client {
+    /// <summary>
+    /// A HTTP handler that implements the circuit breaker pattern. 
+    /// </summary>
    public sealed class CircuitBreakerHttpMessageHandler : DelegatingHandler {
       private readonly Int32 m_failuresToOpen;
       private readonly TimeSpan m_timeToStayOpen;
@@ -41,7 +44,13 @@ namespace Microsoft.ServiceFabric.Http.Client {
             return $"Failures={m_failureCount}, Last Attempt={LastAttempt}";
          }
       }
-
+    
+      /// <summary>
+      /// Construct a CircuitBreakerHttpMessageHandler instance.
+      /// </summary>
+      /// <param name="failuresToOpen">Number of failures allowed before the breaker is open.</param>
+      /// <param name="timeToStayOpen">Time for the circuit breaker to stay open.</param>
+      /// <param name="innerHandler">The inner HTTP message handler.</param>
       public CircuitBreakerHttpMessageHandler(Int32 failuresToOpen, TimeSpan timeToStayOpen, HttpMessageHandler innerHandler = null) : base(innerHandler ?? new HttpClientHandler()) {
          m_failuresToOpen = failuresToOpen;
          m_timeToStayOpen = timeToStayOpen;

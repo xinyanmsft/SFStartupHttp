@@ -50,7 +50,7 @@ namespace Application1.Frontend.Controllers
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("ValuesService")
                                     .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/values/{newId}";    // TODO: feedback: do not do string append. 
+                                    + $"api/values/{newId}"; 
             HttpResponseMessage r = await this.httpClient.PostAsync(requestUri, new StreamContent(this.HttpContext.Request.Body));
             r.EnsureSuccessStatusCode();
             return new ContentResult
@@ -105,7 +105,12 @@ namespace Application1.Frontend.Controllers
 
         private long GetValuesPartitionKey(string id)
         {
-            return 0;  /*TODO: comments*/
+            // When working with Service Fabric stateful service and reliable collection, one needs to understand
+            // how the Service Fabric partition works, and come up with a good partition strategy for the application.
+            // Please read these articles and change this method to return the partition key. 
+            // https://azure.microsoft.com/en-us/documentation/articles/service-fabric-concepts-partitioning/
+            // https://azure.microsoft.com/en-us/documentation/articles/service-fabric-reliable-services-reliable-collections/
+            return 0; 
         }
     }
 }

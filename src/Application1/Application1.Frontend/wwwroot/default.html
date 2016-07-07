@@ -109,7 +109,10 @@
         }
 
         function addNewValue() {
-            if (!entityData) return;
+            if (!entityData) {
+                myAlert("Please create a list first.");
+                return;
+            }
             var content = document.getElementById("newValueContent").value;
             if (!content) return;
             var id = 'id' + Math.floor(1 + Math.random() * 0x7FFFFFFF);
@@ -135,7 +138,10 @@
         }
 
         function deleteEntity() {
-            if (!entityData) return;
+            if (!entityData) {
+                myAlert("Please create a list first.")
+                return;
+            }
             var http = new XMLHttpRequest();
             http.onreadystatechange = function () {
                 if (http.readyState == 4) {

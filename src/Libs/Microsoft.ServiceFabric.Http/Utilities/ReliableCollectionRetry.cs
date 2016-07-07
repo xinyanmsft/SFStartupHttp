@@ -5,6 +5,16 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Http.Utilities
 {
+    /// <summary>
+    /// When working with Service Fabric reliable collection, it's very important to always catch
+    /// TimeoutException and FabricTransientException, and retry the operation. ReliableCollectionRetry 
+    /// makes it easy to implement such pattern. Usage:
+    ///     var retry = new ReilableCollectionRetry();
+    ///     await retry.RunAsync(async ()=>
+    ///     {
+    ///        // work with reliable collection
+    ///     }, cancellationToken);
+    /// </summary>
     public sealed class ReliableCollectionRetry
     {
         private readonly int maxRetries, delayMilliseconds, maxDelayMilliseconds;

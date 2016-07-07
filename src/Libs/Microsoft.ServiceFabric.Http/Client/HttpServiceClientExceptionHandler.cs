@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Http.Client
 {
+    /// <summary>
+    /// HttpServiceClientExceptionHandler is a HTTP message handler. It needs to be wrapped by HttpServiceClientHandler. 
+    /// It tells the HttpServiceClientHandler to re-resolve a HTTP endpoint from Service Fabric reliable service when certain 
+    /// communication failures are met, such as TimeoutException, SocketException or connection being closed.
+    /// </summary>
     public sealed class HttpServiceClientExceptionHandler : DelegatingHandler
     {
         public HttpServiceClientExceptionHandler(HttpMessageHandler innerHandler) : base(innerHandler)
