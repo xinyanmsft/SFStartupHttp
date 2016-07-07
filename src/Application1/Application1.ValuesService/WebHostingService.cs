@@ -124,8 +124,8 @@ namespace Application1.ValuesService
                 {
                     count = await entities.GetCountAsync(tx);
                 }
-                // TODO: Report additional load of your application. The load metric needs to be included in 
-                // ApplicationManifest.xml file.
+                // TODO: Report additional load  metrics of your application. The load metric needs to be included in 
+                // the ApplicationManifest.xml file.
                 this.Partition.ReportLoad(new LoadMetric[] { new LoadMetric("ValuesService.DataCount", (int) count) });
 
                 await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);

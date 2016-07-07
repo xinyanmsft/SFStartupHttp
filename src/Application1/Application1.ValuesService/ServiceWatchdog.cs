@@ -47,7 +47,6 @@ namespace Application1.ValuesService
 
         public void OnRequestStop(HttpContext httpContext, TimeSpan duration)
         {
-            // TODO: Method, StatusCode
             ServiceEventSource.Current.ServiceRequestStop(this.serviceContext, httpContext.Request.Method, httpContext.Request.Path, httpContext.Response.StatusCode);
 
             if (!this.cancellationToken.IsCancellationRequested && duration > this.responseTimeWarningThreshold)

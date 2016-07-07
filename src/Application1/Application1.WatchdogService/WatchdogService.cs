@@ -41,7 +41,8 @@ namespace Application1.WatchdogService
                 cancellationToken.ThrowIfCancellationRequested();
 
                 HttpClient httpClient = this.CreateHttpClient();
-                await Task.WhenAll( // TODO: Add additional health checks
+                await Task.WhenAll( 
+                    // TODO: Add additional health checks for your application
                    this.CheckServiceHealthAsync(new Uri($"{applicationName}/Frontend"), async (serviceName, partition) =>
                    {
                        string requestUri = new NamedService(serviceName).BuildEndpointUri(endpointName: "web") + $"default.html";

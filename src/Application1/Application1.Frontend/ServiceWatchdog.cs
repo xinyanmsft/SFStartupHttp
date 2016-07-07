@@ -47,7 +47,6 @@ namespace Application1.Frontend
 
         public void OnRequestStop(HttpContext httpContext, TimeSpan duration)
         {
-            // TODO: heha Method, StatusCode
             ServiceEventSource.Current.ServiceRequestStop(this.serviceContext, httpContext.Request.Method, httpContext.Request.Path, httpContext.Response.StatusCode);
             
             if (!this.cancellationToken.IsCancellationRequested && duration > this.responseTimeWarningThreshold)
