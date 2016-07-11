@@ -89,18 +89,16 @@ namespace Application1.Frontend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(string id)
         {
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                return this.BadRequest();
-            }
-
-            var partitionKey = this.GetValuesPartitionKey(id);
-            string requestUri = new NamedApplication(this.serviceContext)
-                                    .AppendNamedService("ValuesService")
-                                    .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/values/{id}";
-            HttpResponseMessage r = await this.httpClient.DeleteAsync(requestUri);
-            return new StatusCodeResult((int)r.StatusCode);
+            // TODO: Implement this method by invoking the following REST method:
+            //      Endpoint:
+            //              service name: ValuesService
+            //              endpoint name: web
+            //              target: Primary
+            //              partitionKey: return from GetValuesPartitionKey()
+            //      Uri:          api/values{id}
+            //      HTTP Method:  DELETE
+            // 
+            return this.NotFound();
         }
 
         private long GetValuesPartitionKey(string id)
