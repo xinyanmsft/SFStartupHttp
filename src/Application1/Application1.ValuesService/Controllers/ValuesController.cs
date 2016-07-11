@@ -88,7 +88,6 @@ namespace Application1.ValuesService.Controllers
         }
 
         #region private members
-#if ImmutableCollection
         private async Task<ValuesEntity> GetEntityAsync(string id)
         {
             ValuesEntity entity = null;
@@ -160,87 +159,6 @@ namespace Application1.ValuesService.Controllers
         {
             return this.stateManager.GetOrAddAsync<IReliableDictionary<string, ValuesEntity>>("Values");
         }
-#else
-        private async Task<ValuesEntity> GetEntityAsync(string id)
-        {
-            ValuesEntity entity = null;
-            var entities = await this.GetEntitiesAsync();
-            await this.retry.RunAsync(async () =>
-            {
-                using (var tx = this.stateManager.CreateTransaction())
-                {
-                    var v = await entities.TryGetValueAsync(tx, id);
-                    if (v.HasValue)
-                    {
-                        entity = JsonConvert.DeserializeObject<ValuesEntity>(v.Value);
-                        entity.LastAccessedOn = DateTime.UtcNow;
-                        await entities.SetAsync(tx, id, JsonConvert.SerializeObject(entity));
-                    }
-                    await tx.CommitAsync();
-                }
-            });
-            return entity;
-        }
-
-        private async Task<ValuesEntity> CreateEntityAsync(string id)
-        {
-            ValuesEntity entity = null;
-            var entities = await this.GetEntitiesAsync();
-            await this.retry.RunAsync(async () =>
-            {
-                entity = new ValuesEntity(id, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
-                using (var tx = this.stateManager.CreateTransaction())
-                {
-                    await entities.AddAsync(tx, id, JsonConvert.SerializeObject(entity));
-                    await tx.CommitAsync();
-                }
-            });
-            return entity;
-        }
-
-        private async Task UpdateEntityAsync(string id, ValuesEntity data)
-        {
-            var entities = await this.GetEntitiesAsync();
-            await this.retry.RunAsync(async () =>
-            {
-                using (var tx = this.stateManager.CreateTransaction())
-                {
-                    var v = await entities.TryGetValueAsync(tx, id);
-                    ValuesEntity entity;
-                    if (v.HasValue)
-                    {
-                        entity = JsonConvert.DeserializeObject<ValuesEntity>(v.Value);
-                        entity.Values = data.Values;
-                        entity.LastModifiedOn = entity.LastAccessedOn = DateTime.UtcNow;
-                    }
-                    else
-                    {
-                        entity = new ValuesEntity(id, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, data.Values);
-                    }
-                    await entities.SetAsync(tx, id, JsonConvert.SerializeObject(entity));
-                    await tx.CommitAsync();
-                }
-            });
-        }
-
-        private async Task DeleteEntityAsync(string id)
-        {
-            var entities = await this.GetEntitiesAsync();
-            await this.retry.RunAsync(async () =>
-            {
-                using (var tx = this.stateManager.CreateTransaction())
-                {
-                    await entities.TryRemoveAsync(tx, id);
-                    await tx.CommitAsync();
-                }
-            });
-        }
-
-        private Task<IReliableDictionary<string, string>> GetEntitiesAsync()
-        {
-            return this.stateManager.GetOrAddAsync<IReliableDictionary<string, string>>("Values");
-        }
-#endif
 
         private readonly IReliableStateManager stateManager;
         private readonly ServiceContext serviceContext;
