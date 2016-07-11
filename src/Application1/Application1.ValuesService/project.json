@@ -26,7 +26,7 @@
   "buildOptions": {
     "emitEntryPoint": true,
     "preserveCompilationContext": true,
-    "define": [ /*"ImmutableCollection"*/ ]
+    "define": [ ]
   },
 
   "publishOptions": {

@@ -65,32 +65,6 @@ namespace Application1.ValuesService
             ReliableCollectionRetry retry = new ReliableCollectionRetry();
             while (!cancellationToken.IsCancellationRequested)
             {
-#if ImmutableCollection
-                var entities = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, ValuesEntity>>("Values");
-                await retry.RunAsync((Func<Task>)(async () =>
-                {
-                    using (var tx = this.StateManager.CreateTransaction())
-                    {
-                        List<string> dataToRemove = new List<string>();
-                        var values = await entities.CreateEnumerableAsync(tx);
-                        using (var e = values.GetAsyncEnumerator())
-                        {
-                            while (await e.MoveNextAsync(cancellationToken))
-                            {
-                                if (DateTimeOffset.UtcNow.Subtract((DateTimeOffset)e.Current.Value.LastAccessedOn).TotalHours > 1)
-                                {
-                                    dataToRemove.Add((string)e.Current.Key);
-                                }
-                            }
-                        }
-                        foreach (var s in dataToRemove)
-                        {
-                            await entities.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
-                        }
-                        await tx.CommitAsync();
-                    }
-                }), cancellationToken);
-#else
                 var entities = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("Values");
                 await retry.RunAsync((Func<Task>)(async () =>
                 {
@@ -117,7 +91,6 @@ namespace Application1.ValuesService
                         await tx.CommitAsync();
                     }
                 }), cancellationToken);
-#endif
 
                 long count;
                 using (var tx = this.StateManager.CreateTransaction())
