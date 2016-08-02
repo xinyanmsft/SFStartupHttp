@@ -12,9 +12,9 @@ namespace Application1.ValuesService
             _next = next;
         }
 
-        public async Task Invoke(HttpContext httpContext, ServiceWatchdog watchdog)
+        public async Task Invoke(HttpContext httpContext, ServiceMonitor monitor)
         {
-            watchdog.OnRequestStart(httpContext);
+            monitor.OnRequestStart(httpContext);
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -24,13 +24,13 @@ namespace Application1.ValuesService
             }
             catch (Exception ex)
             {
-                watchdog.OnRequestException(httpContext, ex);
+                monitor.OnRequestException(httpContext, ex);
                 throw;
             }
             finally
             {
                 stopwatch.Stop();
-                watchdog.OnRequestStop(httpContext, stopwatch.Elapsed);
+                monitor.OnRequestStop(httpContext, stopwatch.Elapsed);
             }
         }
 
