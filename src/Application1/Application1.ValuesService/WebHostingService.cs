@@ -26,7 +26,7 @@ namespace Application1.ValuesService
             : base(serviceContext, stateManager)
         {
             this.httpClient = new Lazy<HttpClient>(this.CreateHttpClient);
-            this.serviceWatchdog = new Lazy<ServiceWatchdog>(() => new ServiceWatchdog(this.Context, this.Partition));
+            this.serviceMonitor = new Lazy<ServiceMonitor>(() => new ServiceMonitor(this.Context, this.Partition));
         }
 
         #region StatefulService
@@ -42,7 +42,7 @@ namespace Application1.ValuesService
                                            .ConfigureServices(services => {
                                                services.AddSingleton<IReliableStateManager>(this.StateManager);
                                                services.AddSingleton<IServicePartition>(this.Partition);
-                                               services.AddSingleton<ServiceWatchdog>(this.ServiceWatchdog);
+                                               services.AddSingleton<ServiceMonitor>(this.ServiceMonitor);
                                                services.AddSingleton<ServiceContext>(this.Context);
                                                services.AddSingleton<HttpClient>(this.HttpClient);
                                            })
@@ -52,7 +52,7 @@ namespace Application1.ValuesService
 
         protected override Task RunAsync(CancellationToken cancellationToken)
         {
-            this.ServiceWatchdog.StartMonitoring(cancellationToken);
+            this.ServiceMonitor.StartMonitoring(cancellationToken);
             Task.Run(() => this.TrimmingDataAndReportLoadAsync(cancellationToken));
 
             return base.RunAsync(cancellationToken);
@@ -133,9 +133,9 @@ namespace Application1.ValuesService
         }
 #endregion
         
-#region Provide ServiceWatchdog
-        internal ServiceWatchdog ServiceWatchdog { get { return this.serviceWatchdog.Value; } }
-        private Lazy<ServiceWatchdog> serviceWatchdog;
+#region Provide ServiceMonitor
+        internal ServiceMonitor ServiceMonitor { get { return this.serviceMonitor.Value; } }
+        private Lazy<ServiceMonitor> serviceMonitor;
 #endregion
 
 #region Provide HttpClient
