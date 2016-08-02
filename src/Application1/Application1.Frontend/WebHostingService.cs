@@ -23,7 +23,7 @@ namespace Application1.Frontend
             : base(serviceContext)
         {
             this.httpClient = new Lazy<HttpClient>(this.CreateHttpClient);
-            this.serviceWatchdog = new Lazy<ServiceWatchdog>(() => new ServiceWatchdog(this.Context, this.Partition));
+            this.serviceMonitor = new Lazy<ServiceMonitor>(() => new ServiceMonitor(this.Context, this.Partition));
         }
 
         #region StatelessService
@@ -40,7 +40,7 @@ namespace Application1.Frontend
                                            .ConfigureServices(services =>
                                                {
                                                    services.AddSingleton<IServicePartition>(this.Partition);
-                                                   services.AddSingleton<ServiceWatchdog>(this.ServiceWatchdog);
+                                                   services.AddSingleton<ServiceMonitor>(this.ServiceMonitor);
                                                    services.AddSingleton<ServiceContext>(this.Context);
                                                    services.AddSingleton<HttpClient>(this.HttpClient);
                                                })
@@ -50,15 +50,15 @@ namespace Application1.Frontend
 
         protected override Task RunAsync(CancellationToken cancellationToken)
         {
-            this.ServiceWatchdog.StartMonitoring(cancellationToken);
+            this.ServiceMonitor.StartMonitoring(cancellationToken);
 
             return base.RunAsync(cancellationToken);
         }
         #endregion StatelessService
 
-        #region Provide ServiceWatchdog
-        internal ServiceWatchdog ServiceWatchdog {  get { return this.serviceWatchdog.Value; } }
-        private Lazy<ServiceWatchdog> serviceWatchdog;
+        #region Provide ServiceMonitor
+        internal ServiceMonitor ServiceMonitor {  get { return this.serviceMonitor.Value; } }
+        private Lazy<ServiceMonitor> serviceMonitor;
         #endregion
 
         #region Provide HttpClient

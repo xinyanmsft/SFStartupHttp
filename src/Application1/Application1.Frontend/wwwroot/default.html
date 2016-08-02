@@ -3,51 +3,45 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>List</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-
+    <title>Values editor</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+          crossorigin="anonymous">
     <style>
-        .input-group {
+        body {
             margin: 20px;
+            padding-left: 15px;
+            padding-right: 15px;
         }
 
-        .btn {
-            margin-left: 20px;
-        }
-
-        p {
-            margin: 20px;
+        input, button, select, text, table {
+            max-width: 280px;
+            margin: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="row">
-        <div class="col-lg-3">
-            <div class="input-group">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" onclick="startValuesEntity()" type="button">Create a new list</button>
-                </span>                
-            </div>
-            <h4>List id: <span class="label label-info" id="id"></span></h4>
-            <div class="input-group">
-                <input type="text" class="form-control" id="newValueContent" placeholder="Add new value to the list ...">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" onclick="addNewValue()" type="button">Add</button>
-                </span>
-            </div>
-            <div class="input-group">
-                <ul class="list-group" id="valuesList">
-                </ul>
-            </div>
-            <button type="button" class="btn btn-primary" style="visibility:visible" onclick="deleteEntity()" id="btnDelete">Delete this list</button>
-            <p id="message" class="text-danger"></p>
+
+    <div class="form-group">
+        <div class="col-md-10">
+
+            <input type="text" class="form-control" id="newValueContent" placeholder="Add new value ...">
+            <button class="btn btn-default" onclick="addNewValue()" type="button">Add a value</button>
+            <button class="btn btn-default" type="button" style="visibility:hidden" onclick="deleteEntity()" id="btnReset">Reset values</button>
+
+            <h4 style="margin-top:40px">Values</h4>
+            <table class="table table-hover" style="max-width:280px;">
+                <tbody id="valuesList" />
+            </table>
+
+            <p id="message" class="text-info"></p>
         </div>
     </div>
 
     <script>
         var timeout;
         var entityData;
-        
+
         function myAlert(text) {
             clearTimeout(timeout);
             document.getElementById("message").textContent = text;
@@ -57,14 +51,17 @@
             }, 5000)
         }
 
-        function startValuesEntity() {
+        function startValuesEntity(next) {
             var http = new XMLHttpRequest();
             http.onreadystatechange = function () {
                 if (http.readyState == 4) {
                     if (http.status < 400) {
+                        myAlert("An empty list is created.");
                         entityData = JSON.parse(http.responseText);
-                        document.getElementById("id").innerText = entityData.Id;
                         populateValues(entityData.Values);
+                        if (next) {
+                            next();
+                        }
                     } else {
                         myAlert(http.statusText);
                     }
@@ -72,6 +69,7 @@
             };
             http.open("POST", "/api/values/");
             http.setRequestHeader("Content-Type", "application/json");
+            var id = 'values' + Math.floor(1 + Math.random() * 0x7FFFFFFF);
             http.send(id.toString());
         }
 
@@ -101,21 +99,27 @@
                 list.removeChild(list.firstChild);
             }
             for (var i = 0; i < values.length; i++) {
-                var item = document.createElement('li');
-                item.appendChild(document.createTextNode(values[i]));
-                item.className = 'list-group-item';
-                list.appendChild(item);
+                var tr = document.createElement('tr');
+                var td = document.createElement('td');
+                td.appendChild(document.createTextNode(values[i]));
+                tr.appendChild(td);
+                list.appendChild(tr);
+            }
+            if (values.length > 0) {
+              document.getElementById('btnReset').style.visibility = 'visible';
+            } else {
+              document.getElementById('btnReset').style.visibility = 'hidden';
             }
         }
 
         function addNewValue() {
             if (!entityData) {
-                myAlert("Please create a list first.");
+                myAlert("Creating a list ...");
+                startValuesEntity(addNewValue);
                 return;
             }
             var content = document.getElementById("newValueContent").value;
             if (!content) return;
-            var id = 'id' + Math.floor(1 + Math.random() * 0x7FFFFFFF);
             if (!entityData.Values) {
                 entityData.Values = [content];
             } else {
@@ -125,7 +129,7 @@
             http.onreadystatechange = function () {
                 if (http.readyState == 4) {
                     if (http.status < 400) {
-                        myAlert('item added.');
+                        myAlert('A value is added.');
                         refreshEntity();
                     } else {
                         myAlert(http.statusText);
@@ -139,14 +143,13 @@
 
         function deleteEntity() {
             if (!entityData) {
-                myAlert("Please create a list first.")
+                startValuesEntity();
                 return;
             }
             var http = new XMLHttpRequest();
             http.onreadystatechange = function () {
                 if (http.readyState == 4) {
                     if (http.status < 400) {
-                        myAlert('entity deleted.');
                         startValuesEntity();
                     } else {
                         myAlert(http.statusText);
