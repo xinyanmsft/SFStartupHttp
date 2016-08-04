@@ -25,9 +25,9 @@
     <div class="form-group">
         <div class="col-md-10">
 
-            <input type="text" class="form-control" id="newValueContent" placeholder="Add new value ...">
-            <button class="btn btn-default" onclick="addNewValue()" type="button">Add a value</button>
-            <button class="btn btn-default" type="button" style="visibility:hidden" onclick="deleteEntity()" id="btnReset">Reset values</button>
+            <input type="text" class="form-control" id="newValueContent" placeholder="Enter new value ...">
+            <button class="btn btn-default" onclick="addNewValue()" type="button" id="btnAdd">Add a value</button>
+            <button class="btn btn-default" type="button" onclick="deleteEntity()" id="btnReset" disabled>Clear values</button>
 
             <h4 style="margin-top:40px">Values</h4>
             <table class="table table-hover" style="max-width:280px;">
@@ -56,7 +56,6 @@
             http.onreadystatechange = function () {
                 if (http.readyState == 4) {
                     if (http.status < 400) {
-                        myAlert("An empty list is created.");
                         entityData = JSON.parse(http.responseText);
                         populateValues(entityData.Values);
                         if (next) {
@@ -81,6 +80,7 @@
                     if (http.status < 400) {
                         entityData = JSON.parse(http.responseText);
                         populateValues(entityData.Values);
+                        myAlert("");
                     } else {
                         myAlert(http.statusText);
                     }
@@ -106,15 +106,16 @@
                 list.appendChild(tr);
             }
             if (values.length > 0) {
-              document.getElementById('btnReset').style.visibility = 'visible';
+              document.getElementById('btnReset').disabled = false;
             } else {
-              document.getElementById('btnReset').style.visibility = 'hidden';
+              document.getElementById('btnReset').disabled = true;
             }
         }
 
         function addNewValue() {
+            myAlert("adding value ...");
+
             if (!entityData) {
-                myAlert("Creating a list ...");
                 startValuesEntity(addNewValue);
                 return;
             }
@@ -129,7 +130,6 @@
             http.onreadystatechange = function () {
                 if (http.readyState == 4) {
                     if (http.status < 400) {
-                        myAlert('A value is added.');
                         refreshEntity();
                     } else {
                         myAlert(http.statusText);
@@ -158,6 +158,15 @@
             }
             http.open("DELETE", "/api/values/" + entityData.Id);
             http.send();
+        }
+
+        document.getElementById('newValueContent').onkeypress = function (e) {
+            if (e.keyCode == 13) {
+                // press Enter will invoke button click
+                document.getElementById('btnAdd').click();
+                return false;
+            }
+            return true;
         }
 
     </script>
