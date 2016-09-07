@@ -45,6 +45,7 @@ namespace Microsoft.ServiceFabric.Http.Client
                     if (we.Status == WebExceptionStatus.Timeout ||
                         we.Status == WebExceptionStatus.RequestCanceled ||
                         we.Status == WebExceptionStatus.ConnectionClosed ||
+                        we.Status == WebExceptionStatus.NameResolutionFailure ||
                         we.Status == WebExceptionStatus.ConnectFailure)
                     {
                         throw new NeedsResolveServiceEndpointException(we.Status.ToString(), ex);
