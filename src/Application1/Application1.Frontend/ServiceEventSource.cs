@@ -1,4 +1,4 @@
-﻿using Microsoft.ServiceFabric.Http;
+﻿using Microsoft.ServiceFabric;
 using System;
 using System.Diagnostics.Tracing;
 using System.Fabric;

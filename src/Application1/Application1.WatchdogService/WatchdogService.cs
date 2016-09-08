@@ -45,13 +45,13 @@ namespace Application1.WatchdogService
                     // TODO: Add additional health checks for your application
                    this.CheckServiceHealthAsync(new Uri($"{applicationName}/Frontend"), async (serviceName, partition) =>
                    {
-                       string requestUri = new NamedService(serviceName).BuildEndpointUri(endpointName: "web") + $"default.html";
+                       string requestUri = new NamedService(serviceName).AppendNamedEndpoint(endpointName: "web").BuildHttpUri($"default.html");
                        var response = await httpClient.GetAsync(requestUri);
                        return response.IsSuccessStatusCode ? null : $"Request {response.RequestMessage.RequestUri} failed with {response.StatusCode}";
                    }, cancellationToken),
                    this.CheckServiceHealthAsync(new Uri($"{applicationName}/ValuesService"), async (serviceName, partition) =>
                    {
-                       string requestUri = new NamedService(serviceName).BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: 0) + "api/values/";
+                       string requestUri = new NamedService(serviceName).AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: 0).BuildHttpUri("api/values/");
                        var response = await httpClient.GetAsync(requestUri);
                        return response.IsSuccessStatusCode ? null : $"Request {response.RequestMessage.RequestUri} failed with {response.StatusCode}";
                    }, cancellationToken));

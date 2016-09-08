@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Microsoft.ServiceFabric.Http
+namespace Microsoft.ServiceFabric
 {
     public static class ServiceFabricDiagnostics
     {

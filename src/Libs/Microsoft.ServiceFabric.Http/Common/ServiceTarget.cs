@@ -2,9 +2,9 @@
 //  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Http.Client
+namespace Microsoft.ServiceFabric
 {
-    public enum HttpServiceUriTarget
+    public enum ServiceTarget
     {
         /// <summary>
         /// Selects the primary replica of a stateful service.

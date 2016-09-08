@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Http;
+using Microsoft.ServiceFabric;
 
 namespace Application1.ValuesService
 {

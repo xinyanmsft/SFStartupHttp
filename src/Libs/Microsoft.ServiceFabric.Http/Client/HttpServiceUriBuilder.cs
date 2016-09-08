@@ -4,7 +4,8 @@
 
 namespace Microsoft.ServiceFabric.Http.Client
 {
-    using Microsoft.ServiceFabric.Services.Client;
+    using Microsoft.ServiceFabric;
+    using Services.Client;
     using System;
     using System.Fabric;
     using System.Linq;
@@ -24,7 +25,7 @@ namespace Microsoft.ServiceFabric.Http.Client
 
         public ServicePartitionKey PartitionKey { get; private set; }
 
-        public HttpServiceUriTarget Target { get; private set; }
+        public ServiceTarget Target { get; private set; }
 
         public string EndpointName { get; private set; }
 
@@ -74,8 +75,8 @@ namespace Microsoft.ServiceFabric.Http.Client
                 this.PartitionKey = new ServicePartitionKey(partitionId);
             }
 
-            HttpServiceUriTarget target;
-            if (!Enum.TryParse<HttpServiceUriTarget>(segments[1], true, out target))
+            ServiceTarget target;
+            if (!Enum.TryParse<ServiceTarget>(segments[1], true, out target))
             {
                 throw new ArgumentException(InvalidUriErrorMessage);
             }
@@ -174,7 +175,7 @@ namespace Microsoft.ServiceFabric.Http.Client
             return this;
         }
 
-        public HttpServiceUriBuilder SetTarget(HttpServiceUriTarget target)
+        public HttpServiceUriBuilder SetTarget(ServiceTarget target)
         {
             this.Target = target;
             return this;

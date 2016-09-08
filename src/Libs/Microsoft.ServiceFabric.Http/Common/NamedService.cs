@@ -30,6 +30,9 @@ namespace Microsoft.ServiceFabric
             m_uri = serviceName;
         }
 
+        public NamedEndpoint AppendNamedEndpoint(string endpointName) => new NamedEndpoint(this, endpointName);
+        public NamedEndpoint AppendNamedEndpoint(string endpointName, ServiceTarget target, long partitionKey) => new NamedEndpoint(this, endpointName, target, partitionKey);
+        
         public override string ToString() => m_uri.ToString();
 
         public static implicit operator Uri(NamedService serviceName)

@@ -32,8 +32,8 @@ namespace Application1.Frontend.Controllers
             var partitionKey = this.GetValuesPartitionKey(id);
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("ValuesService")
-                                    .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/values/{id}";
+                                    .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
+                                    .BuildHttpUri($"api/values/{id}");
             return new ContentResult
             {
                 StatusCode = 200,
@@ -49,8 +49,8 @@ namespace Application1.Frontend.Controllers
             var partitionKey = this.GetValuesPartitionKey(newId);
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("ValuesService")
-                                    .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/values/{newId}"; 
+                                    .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
+                                    .BuildHttpUri($"api/values/{newId}"); 
             HttpResponseMessage r = await this.httpClient.PostAsync(requestUri, new StreamContent(this.HttpContext.Request.Body));
             r.EnsureSuccessStatusCode();
             return new ContentResult
@@ -72,8 +72,8 @@ namespace Application1.Frontend.Controllers
             var partitionKey = this.GetValuesPartitionKey(id);
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("ValuesService")
-                                    .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/values/{id}";
+                                    .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
+                                    .BuildHttpUri($"api/values/{id}");
             HttpContent content = new StreamContent(this.Request.Body);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             HttpResponseMessage r = await this.httpClient.PutAsync(requestUri, content);
@@ -97,8 +97,8 @@ namespace Application1.Frontend.Controllers
             var partitionKey = this.GetValuesPartitionKey(id);
             string requestUri = new NamedApplication(this.serviceContext)
                                     .AppendNamedService("ValuesService")
-                                    .BuildEndpointUri(endpointName: "web", target: HttpServiceUriTarget.Primary, partitionKey: partitionKey)
-                                    + $"api/values/{id}";
+                                    .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
+                                    .BuildHttpUri($"api/values/{id}");
             HttpResponseMessage r = await this.httpClient.DeleteAsync(requestUri);
             return new StatusCodeResult((int)r.StatusCode);
         }

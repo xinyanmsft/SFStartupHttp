@@ -58,13 +58,13 @@ namespace Microsoft.ServiceFabric.Http.Client
                 string serviceEndpointJson;
                 switch (uriBuilder.Target)
                 {
-                    case HttpServiceUriTarget.Primary:
+                    case ServiceTarget.Primary:
                         serviceEndpointJson = partition.GetEndpoint().Address;
                         break;
-                    case HttpServiceUriTarget.Secondary:
+                    case ServiceTarget.Secondary:
                         serviceEndpointJson = this.GetRandomEndpointAddress(partition.Endpoints, 1);
                         break;
-                    case HttpServiceUriTarget.Any:
+                    case ServiceTarget.Any:
                     default:
                         serviceEndpointJson = this.GetRandomEndpointAddress(partition.Endpoints, 0);
                         break;
