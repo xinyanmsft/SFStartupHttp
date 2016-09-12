@@ -38,20 +38,20 @@ namespace Microsoft.ServiceFabric.Http.Client
             string origin = GetHeaderValue(request, ServiceFabricDiagnostics.RequestOriginHeaderName);
             string correlationId = GetHeaderValue(request, ServiceFabricDiagnostics.CorrelationHeaderName);
 
-            HttpClientEventSource.Current.HttpRequestStart(request, origin, correlationId);
+            HttpClientEventSource.Current.RequestStart(request, origin, correlationId);
             try
             {
                 return base.SendAsync(request, cancellationToken);
             }
             catch(Exception ex)
             {
-                HttpClientEventSource.Current.HttpRequestFailed(request, origin, correlationId, ex);
+                HttpClientEventSource.Current.RequestFailed(request, origin, correlationId, ex);
                 throw;
             }
             finally
             {
                 stopwatch.Stop();
-                HttpClientEventSource.Current.HttpRequestStop(request, origin, correlationId, stopwatch.Elapsed.TotalMilliseconds);
+                HttpClientEventSource.Current.RequestStop(request, origin, correlationId, stopwatch.Elapsed.TotalMilliseconds);
             }
         }
         #endregion

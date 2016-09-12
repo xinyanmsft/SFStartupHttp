@@ -146,7 +146,7 @@ namespace Application1.ValuesService
         private const int ServiceRequestStartEventId = 5;
 
         [NonEvent]
-        public void ServiceRequestStart(ServiceContext serviceContext, string method, string requestTypeName, string correlationId = null, string fromService = null)
+        public void ServiceRequestStart(ServiceContext serviceContext, string method, string requestTypeName, string correlationId = null, string origin = null)
         {
             string serviceName = serviceContext != null ? serviceContext.ServiceName.ToString() : null;
             string serviceTypeName = serviceContext != null ? serviceContext.ServiceTypeName : null;
@@ -158,23 +158,23 @@ namespace Application1.ValuesService
             {
                 correlationId = ServiceFabricDiagnostics.GetRequestCorrelationId() ?? string.Empty;
             }
-            if (fromService == null)
+            if (origin == null)
             {
-                fromService = ServiceFabricDiagnostics.GetRequestOrigin() ?? string.Empty;
+                origin = ServiceFabricDiagnostics.GetRequestOrigin() ?? string.Empty;
             }
-            ServiceRequestStart(requestTypeName, method, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, fromService);
+            ServiceRequestStart(requestTypeName, method, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
         }
 
         [Event(ServiceRequestStartEventId, Level = EventLevel.Informational, Message = "Service request '{0}' started", Keywords = Keywords.Requests)]
-        public void ServiceRequestStart(string requestTypeName, string method, string serviceName, string serviceTypeName, long replicaOrInstanceId, Guid partitionId, string applicationName, string applicationTypeName, string correlationId, string fromService)
+        public void ServiceRequestStart(string requestTypeName, string method, string serviceName, string serviceTypeName, long replicaOrInstanceId, Guid partitionId, string applicationName, string applicationTypeName, string correlationId, string origin)
         {
-            WriteEvent(ServiceRequestStartEventId, requestTypeName, method, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, fromService);
+            WriteEvent(ServiceRequestStartEventId, requestTypeName, method, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
         }
 
         private const int ServiceRequestStopEventId = 6;
         
         [NonEvent]
-        public void ServiceRequestStop(ServiceContext serviceContext, string method, string requestTypeName, int statusCode, string correlationId = null, string fromService = null)
+        public void ServiceRequestStop(ServiceContext serviceContext, string method, string requestTypeName, int statusCode, string correlationId = null, string origin = null)
         {
             string serviceName = serviceContext != null ? serviceContext.ServiceName.ToString() : null;
             string serviceTypeName = serviceContext != null ? serviceContext.ServiceTypeName : null;
@@ -186,22 +186,22 @@ namespace Application1.ValuesService
             {
                 correlationId = ServiceFabricDiagnostics.GetRequestCorrelationId() ?? string.Empty;
             }
-            if (fromService == null)
+            if (origin == null)
             {
-                fromService = ServiceFabricDiagnostics.GetRequestOrigin() ?? string.Empty;
+                origin = ServiceFabricDiagnostics.GetRequestOrigin() ?? string.Empty;
             }
-            ServiceRequestStop(requestTypeName, method, statusCode, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, fromService);
+            ServiceRequestStop(requestTypeName, method, statusCode, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
         }
 
         [Event(ServiceRequestStopEventId, Level = EventLevel.Informational, Message = "Service request '{0}' finished", Keywords = Keywords.Requests)]
-        public void ServiceRequestStop(string requestTypeName, string method, int statusCode, string serviceName, string serviceTypeName, long replicaOrInstanceId, Guid partitionId, string applicationName, string applicationTypeName, string correlationId, string fromService)
+        public void ServiceRequestStop(string requestTypeName, string method, int statusCode, string serviceName, string serviceTypeName, long replicaOrInstanceId, Guid partitionId, string applicationName, string applicationTypeName, string correlationId, string origin)
         {
-            WriteEvent(ServiceRequestStopEventId, requestTypeName, method, statusCode, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, fromService);
+            WriteEvent(ServiceRequestStopEventId, requestTypeName, method, statusCode, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
         }
 
         private const int ServiceRequestFailedEventId = 7;
         [NonEvent]
-        public void ServiceRequestFailed(ServiceContext serviceContext, string method, string requestTypeName, string exception, string correlationId = null, string fromService = null)
+        public void ServiceRequestFailed(ServiceContext serviceContext, string method, string requestTypeName, string exception, string correlationId = null, string origin = null)
         {
             string serviceName = serviceContext != null ? serviceContext.ServiceName.ToString() : null;
             string serviceTypeName = serviceContext != null ? serviceContext.ServiceTypeName : null;
@@ -213,17 +213,17 @@ namespace Application1.ValuesService
             {
                 correlationId = ServiceFabricDiagnostics.GetRequestCorrelationId() ?? string.Empty;
             }
-            if (fromService == null)
+            if (origin == null)
             {
-                fromService = ServiceFabricDiagnostics.GetRequestOrigin() ?? string.Empty;
+                origin = ServiceFabricDiagnostics.GetRequestOrigin() ?? string.Empty;
             }
-            ServiceRequestFailed(requestTypeName, method, exception, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, fromService);
+            ServiceRequestFailed(requestTypeName, method, exception, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
         }
 
         [Event(ServiceRequestFailedEventId, Level = EventLevel.Error, Message = "Service request '{0}' failed", Keywords = Keywords.Requests)]
-        public void ServiceRequestFailed(string requestTypeName, string method, string exception, string serviceName, string serviceTypeName, long replicaOrInstanceId, Guid partitionId, string applicationName, string applicationTypeName, string correlationId, string fromService)
+        public void ServiceRequestFailed(string requestTypeName, string method, string exception, string serviceName, string serviceTypeName, long replicaOrInstanceId, Guid partitionId, string applicationName, string applicationTypeName, string correlationId, string origin)
         {
-            WriteEvent(ServiceRequestFailedEventId, requestTypeName, method, exception, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, fromService);
+            WriteEvent(ServiceRequestFailedEventId, requestTypeName, method, exception, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
         }
         #endregion
 
