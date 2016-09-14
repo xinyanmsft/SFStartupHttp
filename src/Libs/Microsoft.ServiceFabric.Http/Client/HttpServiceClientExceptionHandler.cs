@@ -20,11 +20,11 @@ namespace Microsoft.ServiceFabric.Http.Client
         public HttpServiceClientExceptionHandler(HttpMessageHandler innerHandler) : base(innerHandler)
         { }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             try
             {
-                return base.SendAsync(request, cancellationToken);
+                return await base.SendAsync(request, cancellationToken);
             }
             catch (TimeoutException ex)
             {
@@ -49,6 +49,9 @@ namespace Microsoft.ServiceFabric.Http.Client
                         we.Status == WebExceptionStatus.RequestCanceled ||
                         we.Status == WebExceptionStatus.ConnectionClosed ||
                         we.Status == WebExceptionStatus.NameResolutionFailure ||
+                        we.Status == WebExceptionStatus.KeepAliveFailure ||
+                        we.Status == WebExceptionStatus.ReceiveFailure ||
+                        we.Status == WebExceptionStatus.SendFailure ||
                         we.Status == WebExceptionStatus.ConnectFailure)
                     {
                         throw new NeedsResolveServiceEndpointException(we.Status.ToString(), ex);
