@@ -14,16 +14,14 @@ namespace Microsoft.ServiceFabric.Http.Client
     /// </summary>
     public sealed class HttpServiceClientStatusCodeRetryHandler : DelegatingHandler
     {
+        public HttpServiceClientStatusCodeRetryHandler(int[] statusCodeToRetry = null) : base()
+        {
+            this.statusCodeToRetry = statusCodeToRetry;
+        }
+
         public HttpServiceClientStatusCodeRetryHandler(HttpMessageHandler innerHandler, int[] statusCodeToRetry = null) : base(innerHandler)
         {
-            if (statusCodeToRetry == null)
-            {
-                this.statusCodeToRetry = new int[] { 503 };
-            }
-            else
-            {
-                this.statusCodeToRetry = statusCodeToRetry;
-            }
+            this.statusCodeToRetry = statusCodeToRetry;
         }
 
         #region delegating handler override
@@ -62,7 +60,8 @@ namespace Microsoft.ServiceFabric.Http.Client
         #region private members
         private bool ShouldResolveServiceEndpoint(HttpStatusCode statusCode)
         {
-            return this.statusCodeToRetry.Any(c => c == (int)statusCode);
+            return this.statusCodeToRetry == null ? statusCode == HttpStatusCode.ServiceUnavailable : 
+                                                    this.statusCodeToRetry.Any(c => c == (int)statusCode);
         }
 
         private readonly int[] statusCodeToRetry;

@@ -24,6 +24,18 @@ namespace Microsoft.ServiceFabric.Http.Client
         /// <summary>
         /// Initialize a new instance of HttpServiceClientHandler.
         /// </summary>
+        /// <param name="maxRetries">The max number of times to retry service endpoint resolution.</param>
+        /// <param name="initialRetryDelayMs">The initial delay between service endpoint resolution, in milliseconds.</param>
+        public HttpServiceClientHandler(int maxRetries = 5,
+                                        int initialRetryDelayMs = 25) : base()
+        {
+            this.maxRetries = maxRetries;
+            this.initialRetryDelayMs = initialRetryDelayMs;
+        }
+
+        /// <summary>
+        /// Initialize a new instance of HttpServiceClientHandler.
+        /// </summary>
         /// <param name="innerHandler">The inner handler.</param>
         /// <param name="maxRetries">The max number of times to retry service endpoint resolution.</param>
         /// <param name="initialRetryDelayMs">The initial delay between service endpoint resolution, in milliseconds.</param>
@@ -46,15 +58,14 @@ namespace Microsoft.ServiceFabric.Http.Client
 
             ResolvedServicePartition partition = null;
             HttpServiceUriBuilder uriBuilder = new HttpServiceUriBuilder(request.RequestUri);
-            var servicePartitionResolver = ServicePartitionResolver.GetDefault();
             NeedsResolveServiceEndpointException exception = null;
             int retries = this.maxRetries;
             int retryDelay = this.initialRetryDelayMs;
             while (retries-- > 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                partition = partition != null ? await servicePartitionResolver.ResolveAsync(partition, cancellationToken)
-                                              : await servicePartitionResolver.ResolveAsync(uriBuilder.ServiceName, uriBuilder.PartitionKey, cancellationToken);
+                partition = partition != null ? await this.servicePartitionResolver.ResolveAsync(partition, cancellationToken)
+                                              : await this.servicePartitionResolver.ResolveAsync(uriBuilder.ServiceName, uriBuilder.PartitionKey, cancellationToken);
                 string serviceEndpointJson;
                 switch (uriBuilder.Target)
                 {
@@ -116,6 +127,7 @@ namespace Microsoft.ServiceFabric.Http.Client
         private readonly int maxRetries;
         private readonly int initialRetryDelayMs;
         private readonly Random random = new Random();
+        private readonly ServicePartitionResolver servicePartitionResolver = ServicePartitionResolver.GetDefault();
         #endregion
     }
 }

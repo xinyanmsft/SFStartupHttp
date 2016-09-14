@@ -14,12 +14,12 @@ namespace Microsoft.ServiceFabric.Http.Client
     {
         private readonly Int32 m_failuresToOpen;
         private readonly TimeSpan m_timeToStayOpen;
+        private readonly Func<Uri, string> m_getCircuitBreakerPath;
 
         private const Int32 c_evictionScanFrequency = 100;
         private readonly TimeSpan m_evictionStaleTime = TimeSpan.FromMinutes(1);
         private Int32 m_evictionScan = 0;    // 0 to c_evictionScanFrequency-1
-        private readonly SortedList<Uri, UriCircuitBreaker> m_pool =
-           new SortedList<Uri, UriCircuitBreaker>(new UriComparer());
+        private readonly SortedList<string, UriCircuitBreaker> m_pool = new SortedList<string, UriCircuitBreaker>(StringComparer.OrdinalIgnoreCase);
 
         private sealed class UriCircuitBreaker
         {
@@ -62,11 +62,30 @@ namespace Microsoft.ServiceFabric.Http.Client
         /// </summary>
         /// <param name="failuresToOpen">Number of failures allowed before the breaker is open.</param>
         /// <param name="timeToStayOpen">Time for the circuit breaker to stay open.</param>
-        /// <param name="innerHandler">The inner HTTP message handler.</param>
-        public CircuitBreakerHttpMessageHandler(Int32 failuresToOpen, TimeSpan timeToStayOpen, HttpMessageHandler innerHandler = null) : base(innerHandler ?? new HttpClientHandler())
+        /// <param name="getCircuitBreakerPath">Returns the path a circuit breaker is bound to. By default, Uri.GetLeftPartH(UriPartial.Path) is used.</param>
+        public CircuitBreakerHttpMessageHandler(Int32 failuresToOpen, 
+                                                TimeSpan timeToStayOpen, 
+                                                Func<Uri, string> getCircuitBreakerPath = null) : base()
         {
             m_failuresToOpen = failuresToOpen;
             m_timeToStayOpen = timeToStayOpen;
+            m_getCircuitBreakerPath = getCircuitBreakerPath ?? DefaultGetCircuitBreakerPath;
+        }
+
+        /// <summary>
+        /// Construct a CircuitBreakerHttpMessageHandler instance.
+        /// </summary>
+        /// <param name="failuresToOpen">Number of failures allowed before the breaker is open.</param>
+        /// <param name="timeToStayOpen">Time for the circuit breaker to stay open.</param>
+        /// <param name="innerHandler">The inner HTTP message handler.</param>
+        public CircuitBreakerHttpMessageHandler(HttpMessageHandler innerHandler,
+                                                Int32 failuresToOpen, 
+                                                TimeSpan timeToStayOpen,
+                                                Func<Uri, string> getCircuitBreakerPath = null) : base(innerHandler)
+        {
+            m_failuresToOpen = failuresToOpen;
+            m_timeToStayOpen = timeToStayOpen;
+            m_getCircuitBreakerPath = getCircuitBreakerPath ?? DefaultGetCircuitBreakerPath;
         }
 
         protected override void Dispose(bool disposing) => base.Dispose(disposing);
@@ -87,7 +106,8 @@ namespace Microsoft.ServiceFabric.Http.Client
 
         private UriCircuitBreaker GetCircuitBreaker(Uri uri)
         {
-            uri = new Uri(uri.GetLeftPart(UriPartial.Path));
+            string path = this.m_getCircuitBreakerPath(uri);
+
             UriCircuitBreaker ucb;
             Monitor.Enter(m_pool);
             try
@@ -100,13 +120,18 @@ namespace Microsoft.ServiceFabric.Http.Client
                     foreach (var staleUri in staleUris.ToArray()) m_pool.Remove(staleUri);
                 }
 
-                if (!m_pool.TryGetValue(uri, out ucb)) m_pool.Add(uri, ucb = new UriCircuitBreaker());
+                if (!m_pool.TryGetValue(path, out ucb)) m_pool.Add(path, ucb = new UriCircuitBreaker());
             }
             finally
             {
                 Monitor.Exit(m_pool);
             }
             return ucb;
+        }
+
+        private static string DefaultGetCircuitBreakerPath(Uri uri)
+        {
+            return uri.GetLeftPart(UriPartial.Path);
         }
 
         private sealed class UriComparer : IComparer<Uri>

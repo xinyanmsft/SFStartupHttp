@@ -15,7 +15,12 @@ namespace Microsoft.ServiceFabric.Http.Client
     /// </summary>
     public sealed class HttpTraceMessageHandler : DelegatingHandler
     {
-        public HttpTraceMessageHandler(ServiceContext context, HttpMessageHandler innerHandler = null) : base(innerHandler ?? new HttpClientHandler())
+        public HttpTraceMessageHandler(ServiceContext context) : base()
+        {
+            this.context = context;
+        }
+
+        public HttpTraceMessageHandler(HttpMessageHandler innerHandler, ServiceContext context) : base(innerHandler)
         {
             this.context = context;
         }

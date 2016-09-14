@@ -14,6 +14,9 @@ namespace Microsoft.ServiceFabric.Http.Client
     /// </summary>
     public sealed class HttpServiceClientExceptionHandler : DelegatingHandler
     {
+        public HttpServiceClientExceptionHandler() : base()
+        { }
+
         public HttpServiceClientExceptionHandler(HttpMessageHandler innerHandler) : base(innerHandler)
         { }
 

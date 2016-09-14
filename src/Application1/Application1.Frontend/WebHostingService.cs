@@ -66,16 +66,21 @@ namespace Application1.Frontend
 
         private HttpClient CreateHttpClient()
         {
-            // TODO: To enable circuit breaker pattern, set proper values in CircuitBreakerHttpMessageHandler constructor.
-            // One can further customize the Http client behavior by explicitly creating the HttpClientHandler, or by  
-            // adjusting ServicePointManager properties.
-            var handler = new CircuitBreakerHttpMessageHandler(10, TimeSpan.FromSeconds(10),
-                            new HttpServiceClientHandler(
-                                new HttpServiceClientExceptionHandler(
-                                    new HttpServiceClientStatusCodeRetryHandler(
-                                        new HttpTraceMessageHandler(this.Context)))));
-            return new HttpClient(handler);
+            // TODO: 
+            //  - To enable circuit breaker pattern, set proper values in CircuitBreakerHttpMessageHandler constructor.
+            //  - To change when to re-resolve Service Fabric reliable service address, customize or replace 
+            // HttpServiceClientExceptionHandler and HttpServiceClientStatusCodeRetryHandler.
+            //  - One can further customize the Http client behavior by customizing the HttpClientHandler, or by adjusting 
+            // ServicePointManager properties.
+            return HttpClientFactory.Create(new HttpClientHandler(),
+                                            new CircuitBreakerHttpMessageHandler(10, TimeSpan.FromSeconds(10)), // implements circuit breaker pattern
+                                            new HttpServiceClientHandler(), // implements Service Fabric reliable service address resolution
+                                            new HttpServiceClientExceptionHandler(),    // Used by HttpServiceClientHandler. Identifies which exception should cause HttpServiceClientHandler to re-resolve the service address
+                                            new HttpServiceClientStatusCodeRetryHandler(),  // Used by HttpServiceClientHandler. Identifies which HTTP status code should cause HttpServiceClientHandler to re-resolve the service address
+                                            new HttpTraceMessageHandler(this.Context)   // Adds correlation Id tracing to the HTTP request
+                                            );
         }
+
         private Lazy<HttpClient> httpClient;
         #endregion
     }
