@@ -68,8 +68,7 @@
             };
             http.open("POST", "/api/values/");
             http.setRequestHeader("Content-Type", "application/json");
-            var id = 'values' + Math.floor(1 + Math.random() * 0x7FFFFFFF);
-            http.send(id.toString());
+            http.send();
         }
 
         function refreshEntity() {
