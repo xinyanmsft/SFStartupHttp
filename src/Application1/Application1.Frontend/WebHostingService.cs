@@ -66,7 +66,9 @@ namespace Application1.Frontend
 
         private HttpClient CreateHttpClient()
         {
-            // TODO: To enable circuit breaker pattern, set proper values in CircuitBreakerHttpMessageHandler constructor
+            // TODO: To enable circuit breaker pattern, set proper values in CircuitBreakerHttpMessageHandler constructor.
+            // One can further customize the Http client behavior by explicitly creating the HttpClientHandler, or by  
+            // adjusting ServicePointManager properties.
             var handler = new CircuitBreakerHttpMessageHandler(10, TimeSpan.FromSeconds(10),
                             new HttpServiceClientHandler(
                                 new HttpServiceClientExceptionHandler(

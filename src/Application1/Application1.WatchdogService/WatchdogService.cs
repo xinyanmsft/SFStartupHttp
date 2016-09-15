@@ -79,7 +79,7 @@ namespace Application1.WatchdogService
             {
                 TimeToLive = this.healthCheckFrequency.Add(this.healthInfoTimeToLive),
                 Description = "Watchdog self monitoring",
-                RemoveWhenExpired = false
+                RemoveWhenExpired = true
             };
         }
 
@@ -98,7 +98,7 @@ namespace Application1.WatchdogService
                     if (!string.IsNullOrEmpty(message))
                     {
                         healthInfo = this.ToHealthInformation(HealthCheckPropertyName, 
-                                                              HealthState.Error, 
+                                                              HealthState.Warning,
                                                               this.healthInfoTimeToLive,
                                                               $"Health check of {serviceName}, partition {partition.PartitionInformation.Id} failed with {message}", 
                                                               removedWhenExpired: true);
@@ -107,7 +107,7 @@ namespace Application1.WatchdogService
                 catch (Exception ex)
                 {
                     healthInfo = this.ToHealthInformation(HealthCheckPropertyName, 
-                                                          HealthState.Error, 
+                                                          HealthState.Warning, 
                                                           this.healthInfoTimeToLive,
                                                           $"Health check of {serviceName}, partition {partition.PartitionInformation.Id} failed with exception {ex}", 
                                                           removedWhenExpired: true);
@@ -133,7 +133,7 @@ namespace Application1.WatchdogService
                                                                       HealthState.Ok, 
                                                                       this.healthInfoTimeToLive, 
                                                                       "OK", 
-                                                                      removedWhenExpired: false);
+                                                                      removedWhenExpired: true);
                             }
                         }
 
@@ -145,7 +145,9 @@ namespace Application1.WatchdogService
 
         private HttpClient CreateHttpClient()
         {
-            // TODO: To enable circuit breaker pattern, set proper values in CircuitBreakerHttpMessageHandler constructor
+            // TODO: To enable circuit breaker pattern, set proper values in CircuitBreakerHttpMessageHandler constructor.
+            // One can further customize the Http client behavior by explicitly creating the HttpClientHandler, or by  
+            // adjusting ServicePointManager properties.
             var handler = new CircuitBreakerHttpMessageHandler(10, TimeSpan.FromSeconds(10),
                 new HttpServiceClientHandler(
                     new HttpServiceClientExceptionHandler(
@@ -167,7 +169,7 @@ namespace Application1.WatchdogService
         
         private readonly FabricClient fabricClient;
         private readonly TimeSpan healthCheckFrequency = TimeSpan.FromSeconds(60);
-        private readonly TimeSpan healthInfoTimeToLive = TimeSpan.FromSeconds(120);
+        private readonly TimeSpan healthInfoTimeToLive = TimeSpan.FromSeconds(300);
         private readonly TimeSpan responseTimeWarningThreshold = TimeSpan.FromSeconds(30);
         private const string HealthCheckPropertyName = "Watchdog.HealthCheck";
         #endregion
