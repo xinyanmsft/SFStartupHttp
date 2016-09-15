@@ -79,7 +79,7 @@ namespace Application1.WatchdogService
             {
                 TimeToLive = this.healthCheckFrequency.Add(this.healthInfoTimeToLive),
                 Description = "Watchdog self monitoring",
-                RemoveWhenExpired = false
+                RemoveWhenExpired = true
             };
         }
 
@@ -133,7 +133,7 @@ namespace Application1.WatchdogService
                                                                       HealthState.Ok, 
                                                                       this.healthInfoTimeToLive, 
                                                                       "OK", 
-                                                                      removedWhenExpired: false);
+                                                                      removedWhenExpired: true);
                             }
                         }
 
@@ -169,7 +169,7 @@ namespace Application1.WatchdogService
         
         private readonly FabricClient fabricClient;
         private readonly TimeSpan healthCheckFrequency = TimeSpan.FromSeconds(60);
-        private readonly TimeSpan healthInfoTimeToLive = TimeSpan.FromSeconds(120);
+        private readonly TimeSpan healthInfoTimeToLive = TimeSpan.FromSeconds(300);
         private readonly TimeSpan responseTimeWarningThreshold = TimeSpan.FromSeconds(30);
         private const string HealthCheckPropertyName = "Watchdog.HealthCheck";
         #endregion

@@ -17,11 +17,11 @@ namespace Microsoft.ServiceFabric.Http.Client
         public HttpServiceClientExceptionHandler(HttpMessageHandler innerHandler) : base(innerHandler)
         { }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             try
             {
-                return base.SendAsync(request, cancellationToken);
+                return await base.SendAsync(request, cancellationToken);
             }
             catch (TimeoutException ex)
             {
@@ -30,6 +30,17 @@ namespace Microsoft.ServiceFabric.Http.Client
             catch (SocketException ex)
             {
                 throw new NeedsResolveServiceEndpointException("Socket error", ex);
+            }
+            catch (TaskCanceledException ex)
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    throw new NeedsResolveServiceEndpointException("Task cancelled", ex);
+                }
+                else
+                {
+                    throw;
+                }
             }
             catch (Exception ex) when (ex is HttpRequestException || ex is WebException)
             {
@@ -46,6 +57,10 @@ namespace Microsoft.ServiceFabric.Http.Client
                         we.Status == WebExceptionStatus.RequestCanceled ||
                         we.Status == WebExceptionStatus.ConnectionClosed ||
                         we.Status == WebExceptionStatus.NameResolutionFailure ||
+                        we.Status == WebExceptionStatus.KeepAliveFailure ||
+                        we.Status == WebExceptionStatus.ReceiveFailure ||
+                        we.Status == WebExceptionStatus.SendFailure ||
+                        we.Status == WebExceptionStatus.RequestCanceled ||
                         we.Status == WebExceptionStatus.ConnectFailure)
                     {
                         throw new NeedsResolveServiceEndpointException(we.Status.ToString(), ex);

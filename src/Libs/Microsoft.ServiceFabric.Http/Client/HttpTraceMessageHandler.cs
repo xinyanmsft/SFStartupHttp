@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Http.Client
         }
 
         #region DelegatingHandler override
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (!request.Headers.Contains(ServiceFabricDiagnostics.CorrelationHeaderName))
             {
@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Http.Client
             HttpClientEventSource.Current.HttpRequestStart(request, origin, correlationId);
             try
             {
-                return base.SendAsync(request, cancellationToken);
+                return await base.SendAsync(request, cancellationToken);
             }
             catch(Exception ex)
             {
