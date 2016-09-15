@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Http.Client
         public HttpServiceClientExceptionHandler(HttpMessageHandler innerHandler) : base(innerHandler)
         { }
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             try
             {
@@ -33,6 +33,17 @@ namespace Microsoft.ServiceFabric.Http.Client
             catch (SocketException ex)
             {
                 throw new NeedsResolveServiceEndpointException("Socket error", ex);
+            }
+            catch (TaskCanceledException ex)
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    throw new NeedsResolveServiceEndpointException("Task cancelled", ex);
+                }
+                else
+                {
+                    throw;
+                }
             }
             catch (Exception ex) when (ex is HttpRequestException || ex is WebException)
             {
