@@ -36,14 +36,7 @@ namespace Microsoft.ServiceFabric.Http.Client
             }
             catch (TaskCanceledException ex)
             {
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    throw new NeedsResolveServiceEndpointException("Task cancelled", ex);
-                }
-                else
-                {
-                    throw;
-                }
+                throw new NeedsResolveServiceEndpointException("Task cancelled", ex);
             }
             catch (Exception ex) when (ex is HttpRequestException || ex is WebException)
             {
