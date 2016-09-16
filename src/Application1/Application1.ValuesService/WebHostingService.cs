@@ -65,43 +65,47 @@ namespace Application1.ValuesService
             ReliableCollectionRetry retry = new ReliableCollectionRetry();
             while (!cancellationToken.IsCancellationRequested)
             {
-                var entities = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("Values");
-                await retry.RunAsync((Func<Task>)(async () =>
+                await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
+                try
                 {
-                    DateTimeOffset now = DateTimeOffset.UtcNow;
-                    using (var tx = this.StateManager.CreateTransaction())
+                    var entities = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("Values");
+                    await retry.RunAsync((Func<Task>)(async () =>
                     {
-                        List<string> dataToRemove = new List<string>();
-                        var values = await entities.CreateEnumerableAsync(tx);
-                        using (var e = values.GetAsyncEnumerator())
+                        DateTimeOffset now = DateTimeOffset.UtcNow;
+                        using (var tx = this.StateManager.CreateTransaction())
                         {
-                            while (await e.MoveNextAsync(cancellationToken))
+                            List<string> dataToRemove = new List<string>();
+                            var values = await entities.CreateEnumerableAsync(tx);
+                            using (var e = values.GetAsyncEnumerator())
                             {
-                                ValuesEntity entity = JsonConvert.DeserializeObject<ValuesEntity>(e.Current.Value);
-                                if (now.Subtract(entity.LastAccessedOn).TotalHours > 1)
+                                while (await e.MoveNextAsync(cancellationToken))
                                 {
-                                    dataToRemove.Add((string)e.Current.Key);
+                                    ValuesEntity entity = JsonConvert.DeserializeObject<ValuesEntity>(e.Current.Value);
+                                    if (now.Subtract(entity.LastAccessedOn).TotalHours > 1)
+                                    {
+                                        dataToRemove.Add((string)e.Current.Key);
+                                    }
                                 }
                             }
+                            foreach (var s in dataToRemove)
+                            {
+                                await entities.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
+                            }
+                            await tx.CommitAsync();
                         }
-                        foreach (var s in dataToRemove)
-                        {
-                            await entities.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
-                        }
-                        await tx.CommitAsync();
+                    }), cancellationToken);
+                    long count;
+                    using (var tx = this.StateManager.CreateTransaction())
+                    {
+                        count = await entities.GetCountAsync(tx);
                     }
-                }), cancellationToken);
-
-                long count;
-                using (var tx = this.StateManager.CreateTransaction())
-                {
-                    count = await entities.GetCountAsync(tx);
+                    // TODO: Report additional load  metrics of your application. The load metric needs to be included in 
+                    // the ApplicationManifest.xml file.
+                    this.Partition.ReportLoad(new LoadMetric[] { new LoadMetric("ValuesService.DataCount", (int)count) });
                 }
-                // TODO: Report additional load  metrics of your application. The load metric needs to be included in 
-                // the ApplicationManifest.xml file.
-                this.Partition.ReportLoad(new LoadMetric[] { new LoadMetric("ValuesService.DataCount", (int) count) });
-
-                await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
+                catch(Exception)
+                {
+                }
             }
         }
 #endregion
