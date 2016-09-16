@@ -24,11 +24,14 @@ namespace Microsoft.ServiceFabric.Http.Client
         /// <summary>
         /// Initialize a new instance of HttpServiceClientHandler.
         /// </summary>
+        /// <param name="requestTimeoutMs">The request timeout.</param>
         /// <param name="maxRetries">The max number of times to retry service endpoint resolution.</param>
         /// <param name="initialRetryDelayMs">The initial delay between service endpoint resolution, in milliseconds.</param>
-        public HttpServiceClientHandler(int maxRetries = 5,
+        public HttpServiceClientHandler(int requestTimeoutMs = 10000,
+                                        int maxRetries = 5,
                                         int initialRetryDelayMs = 25) : base()
         {
+            this.requestTimeoutMs = requestTimeoutMs;
             this.maxRetries = maxRetries;
             this.initialRetryDelayMs = initialRetryDelayMs;
         }
@@ -37,12 +40,15 @@ namespace Microsoft.ServiceFabric.Http.Client
         /// Initialize a new instance of HttpServiceClientHandler.
         /// </summary>
         /// <param name="innerHandler">The inner handler.</param>
+        /// <param name="requestTimeoutMs">The request timeout.</param>
         /// <param name="maxRetries">The max number of times to retry service endpoint resolution.</param>
         /// <param name="initialRetryDelayMs">The initial delay between service endpoint resolution, in milliseconds.</param>
-        public HttpServiceClientHandler(HttpMessageHandler innerHandler, 
+        public HttpServiceClientHandler(HttpMessageHandler innerHandler,
+                                        int requestTimeoutMs = 10000,
                                         int maxRetries = 5, 
                                         int initialRetryDelayMs = 25):base(innerHandler)
         {
+            this.requestTimeoutMs = requestTimeoutMs;
             this.maxRetries = maxRetries;
             this.initialRetryDelayMs = initialRetryDelayMs;
         }
@@ -82,10 +88,12 @@ namespace Microsoft.ServiceFabric.Http.Client
                 }
                 string endpointUrl = JObject.Parse(serviceEndpointJson)["Endpoints"][uriBuilder.EndpointName].Value<string>();
                 request.RequestUri = new Uri($"{endpointUrl.TrimEnd('/')}/{uriBuilder.ServicePathAndQuery.TrimStart('/')}", UriKind.Absolute);
-                
+
+                CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(new CancellationTokenSource(this.requestTimeoutMs).Token, 
+                                                                                              cancellationToken);
                 try
                 {
-                    HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
+                    HttpResponseMessage response = await base.SendAsync(request, cts.Token);
                     return response;
                 }
                 catch (NeedsResolveServiceEndpointException ex)
@@ -126,6 +134,7 @@ namespace Microsoft.ServiceFabric.Http.Client
 
         private readonly int maxRetries;
         private readonly int initialRetryDelayMs;
+        private readonly int requestTimeoutMs;
         private readonly Random random = new Random();
         private readonly ServicePartitionResolver servicePartitionResolver = ServicePartitionResolver.GetDefault();
         #endregion

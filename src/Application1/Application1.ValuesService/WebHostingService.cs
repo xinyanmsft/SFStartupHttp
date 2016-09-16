@@ -65,70 +65,74 @@ namespace Application1.ValuesService
             ReliableCollectionRetry retry = new ReliableCollectionRetry();
             while (!cancellationToken.IsCancellationRequested)
             {
+                await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
+                try
+                {
 #if ImmutableCollection
-                var entities = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, ValuesEntity>>("Values");
-                await retry.RunAsync((Func<Task>)(async () =>
-                {
-                    using (var tx = this.StateManager.CreateTransaction())
+                    var entities = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, ValuesEntity>>("Values");
+                    await retry.RunAsync((Func<Task>)(async () =>
                     {
-                        List<string> dataToRemove = new List<string>();
-                        var values = await entities.CreateEnumerableAsync(tx);
-                        using (var e = values.GetAsyncEnumerator())
+                        using (var tx = this.StateManager.CreateTransaction())
                         {
-                            while (await e.MoveNextAsync(cancellationToken))
+                            List<string> dataToRemove = new List<string>();
+                            var values = await entities.CreateEnumerableAsync(tx);
+                            using (var e = values.GetAsyncEnumerator())
                             {
-                                if (DateTimeOffset.UtcNow.Subtract((DateTimeOffset)e.Current.Value.LastAccessedOn).TotalHours > 1)
+                                while (await e.MoveNextAsync(cancellationToken))
                                 {
-                                    dataToRemove.Add((string)e.Current.Key);
+                                    if (DateTimeOffset.UtcNow.Subtract((DateTimeOffset)e.Current.Value.LastAccessedOn).TotalHours > 1)
+                                    {
+                                        dataToRemove.Add((string)e.Current.Key);
+                                    }
                                 }
                             }
+                            foreach (var s in dataToRemove)
+                            {
+                                await entities.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
+                            }
+                            await tx.CommitAsync();
                         }
-                        foreach (var s in dataToRemove)
-                        {
-                            await entities.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
-                        }
-                        await tx.CommitAsync();
-                    }
-                }), cancellationToken);
+                    }), cancellationToken);
 #else
-                var entities = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("Values");
-                await retry.RunAsync((Func<Task>)(async () =>
-                {
-                    DateTimeOffset now = DateTimeOffset.UtcNow;
-                    using (var tx = this.StateManager.CreateTransaction())
+                    var entities = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("Values");
+                    await retry.RunAsync((Func<Task>)(async () =>
                     {
-                        List<string> dataToRemove = new List<string>();
-                        var values = await entities.CreateEnumerableAsync(tx);
-                        using (var e = values.GetAsyncEnumerator())
+                        DateTimeOffset now = DateTimeOffset.UtcNow;
+                        using (var tx = this.StateManager.CreateTransaction())
                         {
-                            while (await e.MoveNextAsync(cancellationToken))
+                            List<string> dataToRemove = new List<string>();
+                            var values = await entities.CreateEnumerableAsync(tx);
+                            using (var e = values.GetAsyncEnumerator())
                             {
-                                ValuesEntity entity = JsonConvert.DeserializeObject<ValuesEntity>(e.Current.Value);
-                                if (now.Subtract(entity.LastAccessedOn).TotalHours > 1)
+                                while (await e.MoveNextAsync(cancellationToken))
                                 {
-                                    dataToRemove.Add((string)e.Current.Key);
+                                    ValuesEntity entity = JsonConvert.DeserializeObject<ValuesEntity>(e.Current.Value);
+                                    if (now.Subtract(entity.LastAccessedOn).TotalHours > 1)
+                                    {
+                                        dataToRemove.Add((string)e.Current.Key);
+                                    }
                                 }
                             }
+                            foreach (var s in dataToRemove)
+                            {
+                                await entities.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
+                            }
+                            await tx.CommitAsync();
                         }
-                        foreach (var s in dataToRemove)
-                        {
-                            await entities.TryRemoveAsync(tx, s, TimeSpan.FromSeconds(4), cancellationToken);
-                        }
-                        await tx.CommitAsync();
-                    }
-                }), cancellationToken);
+                    }), cancellationToken);
 #endif
 
-                long count;
-                using (var tx = this.StateManager.CreateTransaction())
-                {
-                    count = await entities.GetCountAsync(tx);
+                    long count;
+                    using (var tx = this.StateManager.CreateTransaction())
+                    {
+                        count = await entities.GetCountAsync(tx);
+                    }
+                    // TODO: Report additional load  metrics of your application. The load metric needs to be included in 
+                    // the ApplicationManifest.xml file.
+                    this.Partition.ReportLoad(new LoadMetric[] { new LoadMetric("ValuesService.DataCount", (int)count) });
                 }
-                // TODO: Report additional load  metrics of your application. The load metric needs to be included in 
-                // the ApplicationManifest.xml file.
-                this.Partition.ReportLoad(new LoadMetric[] { new LoadMetric("ValuesService.DataCount", (int) count) });
-
-                await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
+                catch(Exception)
+                { }
             }
         }
 #endregion

@@ -36,13 +36,23 @@ namespace Microsoft.ServiceFabric.Http
 
         void ICommunicationListener.Abort()
         {
-            this.webHost?.Dispose();
+            try
+            {
+                this.webHost?.Dispose();
+            }
+            catch(Exception)
+            { }
         }
 
         Task ICommunicationListener.CloseAsync(CancellationToken cancellationToken)
         {
-            this.webHost?.Dispose();
-
+            try
+            {
+                this.webHost?.Dispose();
+            }
+            catch(Exception)
+            {
+            }
             return Task.FromResult(true);
         }
 
@@ -59,7 +69,6 @@ namespace Microsoft.ServiceFabric.Http
             if (this.serviceContext is StatefulServiceContext)
             {
                 StatefulServiceContext statefulContext = this.serviceContext as StatefulServiceContext;
-            
                 listenUrl = $"{serviceEndpoint.Protocol}://+:{serviceEndpoint.Port}/{path}{statefulContext.PartitionId}/{statefulContext.ReplicaId}/{Guid.NewGuid()}";
             }
             else
