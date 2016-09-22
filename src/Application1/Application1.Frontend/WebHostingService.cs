@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,7 +73,10 @@ namespace Application1.Frontend
             // HttpServiceClientExceptionHandler and HttpServiceClientStatusCodeRetryHandler.
             //  - One can further customize the Http client behavior by customizing the HttpClientHandler, or by adjusting 
             // ServicePointManager properties.
-            return HttpClientFactory.Create(new HttpClientHandler(),
+            ServicePointManager.DefaultConnectionLimit = 10000;
+            ServicePointManager.Expect100Continue = false;
+            ServicePointManager.UseNagleAlgorithm = false;
+            return HttpClientFactory.Create(new HttpClientHandler() { AllowAutoRedirect = false, UseCookies = false, UseProxy = false },
                                             new CircuitBreakerHttpMessageHandler(10, TimeSpan.FromSeconds(10)), // implements circuit breaker pattern
                                             new HttpServiceClientHandler(), // implements Service Fabric reliable service address resolution
                                             new HttpServiceClientExceptionHandler(),    // Used by HttpServiceClientHandler. Identifies which exception should cause HttpServiceClientHandler to re-resolve the service address

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Application1", "Application1\Application1.sfproj", "{63B5DA08-7017-40F0-83A7-6279A53A2DF5}"
 EndProject
@@ -93,7 +93,6 @@ Global
 		{153D9D5A-53D4-44A8-BD31-7C6850C2FFA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{153D9D5A-53D4-44A8-BD31-7C6850C2FFA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{153D9D5A-53D4-44A8-BD31-7C6850C2FFA6}.Debug|x64.ActiveCfg = Debug|x64
-		{153D9D5A-53D4-44A8-BD31-7C6850C2FFA6}.Debug|x64.Build.0 = Debug|x64
 		{153D9D5A-53D4-44A8-BD31-7C6850C2FFA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{153D9D5A-53D4-44A8-BD31-7C6850C2FFA6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{153D9D5A-53D4-44A8-BD31-7C6850C2FFA6}.Release|x64.ActiveCfg = Release|x64
@@ -101,14 +100,12 @@ Global
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Debug|x64.ActiveCfg = Debug|x64
-		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Debug|x64.Build.0 = Debug|x64
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Release|x64.ActiveCfg = Release|x64
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Release|x64.Build.0 = Release|x64
 		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Debug|x64.ActiveCfg = Debug|x64
-		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Debug|x64.Build.0 = Debug|x64
 		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Release|Any CPU.ActiveCfg = Release|x64
 		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Release|x64.ActiveCfg = Release|x64
 		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Release|x64.Build.0 = Release|x64

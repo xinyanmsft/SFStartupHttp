@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric;
 using Microsoft.ServiceFabric.Http.Client;
+using Newtonsoft.Json;
 using System;
 using System.Fabric;
 using System.Net.Http;
@@ -22,24 +23,38 @@ namespace Application1.Frontend.Controllers
         }
         
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAsync(string id)
+        public async Task<IActionResult> GetAsync(string id, int numThread, bool useReverseProxy = false)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
             }
 
-            var partitionKey = this.GetValuesPartitionKey(id);
-            string requestUri = new NamedApplication(this.serviceContext)
-                                    .AppendNamedService("ValuesService")
-                                    .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
-                                    .BuildHttpUri($"api/values/{id}");
-            return new ContentResult
+            if (StringComparer.OrdinalIgnoreCase.Equals(id, "start1"))
             {
-                StatusCode = 200,
-                Content = await this.httpClient.GetStringAsync(requestUri),
-                ContentType = "application/json"
-            };
+                PerfTests test = new PerfTests(this.httpClient, this.serviceContext, useReverseProxy);
+                TestResult testResult = test.Test(1, numThread);
+                return new ContentResult
+                {
+                    StatusCode = 200,
+                    Content = JsonConvert.SerializeObject(testResult),
+                    ContentType = "application/json"
+                };
+            }
+            else
+            {
+                var partitionKey = this.GetValuesPartitionKey(id);
+                string requestUri = new NamedApplication(this.serviceContext)
+                                        .AppendNamedService("ValuesService")
+                                        .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
+                                        .BuildHttpUri($"api/values/{id}");
+                return new ContentResult
+                {
+                    StatusCode = 200,
+                    Content = await this.httpClient.GetStringAsync(requestUri),
+                    ContentType = "application/json"
+                };
+            }
         }
 
         [HttpPost]
@@ -110,7 +125,7 @@ namespace Application1.Frontend.Controllers
             // Please read these articles and change this method to return the partition key. 
             // https://azure.microsoft.com/en-us/documentation/articles/service-fabric-concepts-partitioning/
             // https://azure.microsoft.com/en-us/documentation/articles/service-fabric-reliable-services-reliable-collections/
-            return 0; 
+            return id == null ? 0 : ((long)id.GetHashCode()) << 32; 
         }
     }
 }

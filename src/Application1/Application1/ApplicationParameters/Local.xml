@@ -3,5 +3,6 @@
   <Parameters>
     <Parameter Name="WatchdogService_InstanceCount" Value="1" />
     <Parameter Name="Frontend_InstanceCount" Value="1" />
+    <Parameter Name="ValuesService_PartitionCount" Value="10" />
   </Parameters>
 </Application>

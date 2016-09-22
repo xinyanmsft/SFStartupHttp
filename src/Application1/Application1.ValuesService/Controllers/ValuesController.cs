@@ -5,6 +5,7 @@ using Microsoft.ServiceFabric.Http.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Fabric;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Application1.ValuesService.Controllers
@@ -35,32 +36,31 @@ namespace Application1.ValuesService.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAsync(string id)
+        public IActionResult Get(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
             }
 
-            ValuesEntity s = await this.GetEntityAsync(id);
-            if (s == null)
+            return new ContentResult()
             {
-                return this.NotFound();
-            }
-
-            return new JsonResult(s);
+                Content = TestStr20000,
+                ContentType = "text/plain",
+                StatusCode = 200
+            };
         }
         
         [HttpPost("{id}")]
-        public async Task<IActionResult> PostAsync(string id)
+        public IActionResult Post(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
             }
 
-            ValuesEntity s = await this.CreateEntityAsync(id);
-            return new JsonResult(s);
+            ValuesEntity entity = new ValuesEntity(id, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            return new JsonResult(entity);
         }
 
         [HttpPut("{id}")]
@@ -88,6 +88,18 @@ namespace Application1.ValuesService.Controllers
         }
 
         #region private members
+        private static string TestStr20000 = CreateTestContent(20000);
+        private static string CreateTestContent(int length)
+        {
+            Random r = new Random();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < length; i++)
+            {
+                sb.Append((char)(r.Next(26) + 65));
+            }
+            return sb.ToString();
+        }
+
 #if ImmutableCollection
         private async Task<ValuesEntity> GetEntityAsync(string id)
         {
