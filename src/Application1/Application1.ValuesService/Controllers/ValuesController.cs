@@ -36,13 +36,13 @@ namespace Application1.ValuesService.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(string id)
+        public async Task<IActionResult> GetAsync(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
             }
-
+            await Task.Delay(20);
             return new ContentResult()
             {
                 Content = TestStr20000,
@@ -52,13 +52,13 @@ namespace Application1.ValuesService.Controllers
         }
         
         [HttpPost("{id}")]
-        public IActionResult Post(string id)
+        public async Task<IActionResult> PostAsync(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
             }
-
+            await Task.Delay(20);
             ValuesEntity entity = new ValuesEntity(id, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
             return new JsonResult(entity);
         }

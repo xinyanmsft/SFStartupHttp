@@ -41,6 +41,17 @@ namespace Application1.Frontend.Controllers
                     ContentType = "application/json"
                 };
             }
+            else if (StringComparer.OrdinalIgnoreCase.Equals(id, "start2"))
+            {
+                PerfTests test = new PerfTests(this.httpClient, this.serviceContext, useReverseProxy);
+                TestResult testResult = test.Test(2, numThread);
+                return new ContentResult
+                {
+                    StatusCode = 200,
+                    Content = JsonConvert.SerializeObject(testResult),
+                    ContentType = "application/json"
+                };
+            }
             else
             {
                 var partitionKey = this.GetValuesPartitionKey(id);

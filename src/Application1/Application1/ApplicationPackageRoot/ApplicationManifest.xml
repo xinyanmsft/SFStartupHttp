@@ -38,7 +38,7 @@
     </Service>
     <Service Name="ValuesService">
       <StatefulService ServiceTypeName="ValuesServiceType" TargetReplicaSetSize="[ValuesService_TargetReplicaSetSize]" MinReplicaSetSize="[ValuesService_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[ValuesService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+        <UniformInt64Partition PartitionCount="[ValuesService_PartitionCount]" LowKey="-99" HighKey="99" />
         <LoadMetrics>
           <LoadMetric Name="ValuesService.DataCount" DefaultLoad="1" Weight="Low" />
         </LoadMetrics>
