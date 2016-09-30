@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.ServiceFabric;
-using Microsoft.ServiceFabric.Http.Client;
+﻿using Application1.Frontend.Utility;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Fabric;
 using System.Net.Http;
@@ -29,11 +28,10 @@ namespace Application1.Frontend.Controllers
                 return this.BadRequest();
             }
 
-            var partitionKey = this.GetValuesPartitionKey(id);
-            string requestUri = new NamedApplication(this.serviceContext)
-                                    .AppendNamedService("ValuesService")
-                                    .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
-                                    .BuildHttpUri($"api/values/{id}");
+            var partitionKey = ServiceUtility.GetValuesPartitionKey(id);
+            Uri serviceUri = ServiceUtility.GetServiceUri(this.serviceContext, "ValuesService");
+            Uri requestUri = ServiceUtility.BuildReverseProxyHttpRequestUri(serviceUri, path: $"api/values/{id}", partitionKey: partitionKey);
+
             return new ContentResult
             {
                 StatusCode = 200,
@@ -46,11 +44,10 @@ namespace Application1.Frontend.Controllers
         public async Task<IActionResult> PostAsync()
         {
             string newId = Guid.NewGuid().ToString();
-            var partitionKey = this.GetValuesPartitionKey(newId);
-            string requestUri = new NamedApplication(this.serviceContext)
-                                    .AppendNamedService("ValuesService")
-                                    .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
-                                    .BuildHttpUri($"api/values/{newId}"); 
+            var partitionKey = ServiceUtility.GetValuesPartitionKey(newId);
+            Uri serviceUri = ServiceUtility.GetServiceUri(this.serviceContext, "ValuesService");
+            Uri requestUri = ServiceUtility.BuildReverseProxyHttpRequestUri(serviceUri, path: $"api/values/{newId}", partitionKey: partitionKey);
+
             HttpResponseMessage r = await this.httpClient.PostAsync(requestUri, new StreamContent(this.HttpContext.Request.Body));
             r.EnsureSuccessStatusCode();
             return new ContentResult
@@ -69,11 +66,10 @@ namespace Application1.Frontend.Controllers
                 return this.BadRequest();
             }
 
-            var partitionKey = this.GetValuesPartitionKey(id);
-            string requestUri = new NamedApplication(this.serviceContext)
-                                    .AppendNamedService("ValuesService")
-                                    .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
-                                    .BuildHttpUri($"api/values/{id}");
+            var partitionKey = ServiceUtility.GetValuesPartitionKey(id);
+            Uri serviceUri = ServiceUtility.GetServiceUri(this.serviceContext, "ValuesService");
+            Uri requestUri = ServiceUtility.BuildReverseProxyHttpRequestUri(serviceUri, path: $"api/values/{id}", partitionKey: partitionKey);
+
             HttpContent content = new StreamContent(this.Request.Body);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             HttpResponseMessage r = await this.httpClient.PutAsync(requestUri, content);
@@ -94,23 +90,12 @@ namespace Application1.Frontend.Controllers
                 return this.BadRequest();
             }
 
-            var partitionKey = this.GetValuesPartitionKey(id);
-            string requestUri = new NamedApplication(this.serviceContext)
-                                    .AppendNamedService("ValuesService")
-                                    .AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: partitionKey)
-                                    .BuildHttpUri($"api/values/{id}");
+            var partitionKey = ServiceUtility.GetValuesPartitionKey(id);
+            Uri serviceUri = ServiceUtility.GetServiceUri(this.serviceContext, "ValuesService");
+            Uri requestUri = ServiceUtility.BuildReverseProxyHttpRequestUri(serviceUri, path: $"api/values/{id}", partitionKey: partitionKey);
+
             HttpResponseMessage r = await this.httpClient.DeleteAsync(requestUri);
             return new StatusCodeResult((int)r.StatusCode);
-        }
-
-        private long GetValuesPartitionKey(string id)
-        {
-            // When working with Service Fabric stateful service and reliable collection, one needs to understand
-            // how the Service Fabric partition works, and come up with a good partition strategy for the application.
-            // Please read these articles and change this method to return the partition key. 
-            // https://azure.microsoft.com/en-us/documentation/articles/service-fabric-concepts-partitioning/
-            // https://azure.microsoft.com/en-us/documentation/articles/service-fabric-reliable-services-reliable-collections/
-            return 0; 
-        }
+        }        
     }
 }

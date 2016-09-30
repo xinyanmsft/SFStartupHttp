@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Application1", "Application1\Application1.sfproj", "{63B5DA08-7017-40F0-83A7-6279A53A2DF5}"
 EndProject
@@ -29,8 +29,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application1.ValuesService.Test", "Test\Application1.ValuesService.Test\Application1.ValuesService.Test.csproj", "{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{DDD3249F-8317-4CF9-9516-92D5C48EDF5B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Http.Test", "..\Libs\Test\Microsoft.ServiceFabric.Http.Test\Microsoft.ServiceFabric.Http.Test.csproj", "{EFA255DD-2600-494D-9331-3A45CC6F565D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -106,12 +104,6 @@ Global
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Release|x64.ActiveCfg = Release|x64
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E}.Release|x64.Build.0 = Release|x64
-		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Debug|x64.ActiveCfg = Debug|x64
-		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Debug|x64.Build.0 = Debug|x64
-		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Release|Any CPU.ActiveCfg = Release|x64
-		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Release|x64.ActiveCfg = Release|x64
-		{EFA255DD-2600-494D-9331-3A45CC6F565D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,6 +114,5 @@ Global
 		{DC51EB5D-58DD-414F-95E0-A3CC56ACD589} = {DDD3249F-8317-4CF9-9516-92D5C48EDF5B}
 		{153D9D5A-53D4-44A8-BD31-7C6850C2FFA6} = {2241777E-C61F-404B-97A8-D198C8F478D0}
 		{67EB226C-05DF-4EA8-A9DC-D2BD30433F0E} = {2241777E-C61F-404B-97A8-D198C8F478D0}
-		{EFA255DD-2600-494D-9331-3A45CC6F565D} = {2241777E-C61F-404B-97A8-D198C8F478D0}
 	EndGlobalSection
 EndGlobal

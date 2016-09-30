@@ -79,16 +79,9 @@
   <ItemGroup>
     <Compile Include="..\Microsoft.ServiceFabric.Http\*.cs">
     </Compile>
-    <Compile Include="..\Microsoft.ServiceFabric.Http\Client\*.cs">
-    </Compile>
-    <Compile Include="..\Microsoft.ServiceFabric.Http\Common\*.cs">
-    </Compile>
-    <Compile Include="..\Microsoft.ServiceFabric.Http\Utilities\ExponentialBackoff.cs">
-      <Link>ExponentialBackoff.cs</Link>
-    </Compile>
-    <Compile Include="..\Microsoft.ServiceFabric.Http\Utilities\ReliableCollectionRetry.cs">
-      <Link>ReliableCollectionRetry.cs</Link>
-    </Compile>
+    <Compile Include="..\Microsoft.ServiceFabric.Http\Client\HttpClientEventSource.cs" />
+    <Compile Include="..\Microsoft.ServiceFabric.Http\Client\HttpTraceMessageHandler.cs" />
+    <Compile Include="..\Microsoft.ServiceFabric.Http\Common\Diagnostics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

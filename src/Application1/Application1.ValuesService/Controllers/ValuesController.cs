@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Application1.ValuesService.Utility;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.ServiceFabric.Http.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Fabric;

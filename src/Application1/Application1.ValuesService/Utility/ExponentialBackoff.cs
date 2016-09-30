@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ServiceFabric.Http.Utilities
+namespace Application1.ValuesService.Utility
 {
     /// <summary>
     /// Usage:

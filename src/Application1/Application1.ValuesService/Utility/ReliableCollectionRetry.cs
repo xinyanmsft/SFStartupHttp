@@ -3,7 +3,7 @@ using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ServiceFabric.Http.Utilities
+namespace Application1.ValuesService.Utility
 {
     /// <summary>
     /// When working with Service Fabric reliable collection, it's very important to always catch

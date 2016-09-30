@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Application1.ValuesService.Utility;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Http;
 using Microsoft.ServiceFabric.Http.Client;
-using Microsoft.ServiceFabric.Http.Utilities;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Newtonsoft.Json;
@@ -148,16 +148,9 @@ namespace Application1.ValuesService
         private HttpClient CreateHttpClient()
         {
             // TODO: 
-            //  - To enable circuit breaker pattern, set proper values in CircuitBreakerHttpMessageHandler constructor.
-            //  - To change when to re-resolve Service Fabric reliable service address, customize or replace 
-            // HttpServiceClientExceptionHandler and HttpServiceClientStatusCodeRetryHandler.
             //  - One can further customize the Http client behavior by customizing the HttpClientHandler, or by adjusting 
             // ServicePointManager properties.
             return HttpClientFactory.Create(new HttpClientHandler(),
-                                            new CircuitBreakerHttpMessageHandler(10, TimeSpan.FromSeconds(10)), // implements circuit breaker pattern
-                                            new HttpServiceClientHandler(), // implements Service Fabric reliable service address resolution
-                                            new HttpServiceClientExceptionHandler(),    // Used by HttpServiceClientHandler. Identifies which exception should cause HttpServiceClientHandler to re-resolve the service address
-                                            new HttpServiceClientStatusCodeRetryHandler(),  // Used by HttpServiceClientHandler. Identifies which HTTP status code should cause HttpServiceClientHandler to re-resolve the service address
                                             new HttpTraceMessageHandler(this.Context)   // Adds correlation Id tracing to the HTTP request
                                             ); 
         }

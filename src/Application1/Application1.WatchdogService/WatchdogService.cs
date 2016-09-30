@@ -1,4 +1,5 @@
 ﻿
+using Application1.WatchdogService.Utility;
 using Microsoft.ServiceFabric;
 using Microsoft.ServiceFabric.Http;
 using Microsoft.ServiceFabric.Http.Client;
@@ -41,17 +42,17 @@ namespace Application1.WatchdogService
                 cancellationToken.ThrowIfCancellationRequested();
 
                 HttpClient httpClient = this.CreateHttpClient();
-                await Task.WhenAll( 
-                    // TODO: Add additional health checks for your application
+                await Task.WhenAll(
+                   // TODO: Add additional health checks for your application
                    this.CheckServiceHealthAsync(new Uri($"{applicationName}/Frontend"), async (serviceName, partition) =>
                    {
-                       string requestUri = new NamedService(serviceName).AppendNamedEndpoint(endpointName: "web").BuildHttpUri($"default.html");
+                       Uri requestUri = ServiceUtility.BuildReverseProxyHttpRequestUri(serviceName, path: "default.html", timeoutInSeconds: 60);
                        var response = await httpClient.GetAsync(requestUri);
                        return response.IsSuccessStatusCode ? null : $"Request {response.RequestMessage.RequestUri} failed with {response.StatusCode}";
                    }, cancellationToken),
                    this.CheckServiceHealthAsync(new Uri($"{applicationName}/ValuesService"), async (serviceName, partition) =>
                    {
-                       string requestUri = new NamedService(serviceName).AppendNamedEndpoint(endpointName: "web", target: ServiceTarget.Primary, partitionKey: 0).BuildHttpUri("api/values/");
+                       Uri requestUri = ServiceUtility.BuildReverseProxyHttpRequestUri(serviceName, path: "api/values/", partitionKey: new ServicePartitionKey(0), timeoutInSeconds: 60);
                        var response = await httpClient.GetAsync(requestUri);
                        return response.IsSuccessStatusCode ? null : $"Request {response.RequestMessage.RequestUri} failed with {response.StatusCode}";
                    }, cancellationToken));
@@ -152,10 +153,6 @@ namespace Application1.WatchdogService
             //  - One can further customize the Http client behavior by customizing the HttpClientHandler, or by adjusting 
             // ServicePointManager properties.
             return HttpClientFactory.Create(new HttpClientHandler(),
-                                            new CircuitBreakerHttpMessageHandler(10, TimeSpan.FromSeconds(10)), // implements circuit breaker pattern
-                                            new HttpServiceClientHandler(), // implements Service Fabric reliable service address resolution
-                                            new HttpServiceClientExceptionHandler(),    // Used by HttpServiceClientHandler. Identifies which exception should cause HttpServiceClientHandler to re-resolve the service address
-                                            new HttpServiceClientStatusCodeRetryHandler(),  // Used by HttpServiceClientHandler. Identifies which HTTP status code should cause HttpServiceClientHandler to re-resolve the service address
                                             new HttpTraceMessageHandler(this.Context)   // Adds correlation Id tracing to the HTTP request
                                             );
         }
