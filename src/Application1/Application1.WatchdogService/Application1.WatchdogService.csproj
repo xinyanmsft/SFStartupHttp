@@ -81,6 +81,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\HttpCorrelation.cs" />
+    <Compile Include="Utility\HttpTraceMessageHandler.cs" />
     <Compile Include="Utility\ServiceUtility.cs" />
     <Compile Include="WatchdogService.cs" />
     <Compile Include="Program.cs" />
@@ -91,12 +93,6 @@
     <None Include="PackageRoot\ServiceManifest.xml" />
     <None Include="App.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Libs\Microsoft.ServiceFabric.Http.CLR\Microsoft.ServiceFabric.Http.CLR.csproj">
-      <Project>{9cecf663-ffb0-4867-9071-c0cae4ee1f0d}</Project>
-      <Name>Microsoft.ServiceFabric.Http.CLR</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,8 +1,6 @@
 ﻿
 using Application1.WatchdogService.Utility;
 using Microsoft.ServiceFabric;
-using Microsoft.ServiceFabric.Http;
-using Microsoft.ServiceFabric.Http.Client;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Runtime;
 using System;
@@ -86,7 +84,7 @@ namespace Application1.WatchdogService
 
         private async Task CheckServiceHealthAsync(Uri serviceName, Func<Uri, ServicePartitionInformation, Task<string>> func, CancellationToken cancellationToken)
         {
-            ServiceFabricDiagnostics.SetRequestCorrelationId(Guid.NewGuid().ToString());
+            HttpCorrelation.SetRequestCorrelationId(Guid.NewGuid().ToString());
             var partitionList = await fabricClient.QueryManager.GetPartitionListAsync(serviceName);
             foreach (var partition in partitionList)
             {

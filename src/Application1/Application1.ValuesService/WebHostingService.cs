@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
-using Microsoft.ServiceFabric.Http;
-using Microsoft.ServiceFabric.Http.Client;
+using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Newtonsoft.Json;
@@ -34,11 +33,10 @@ namespace Application1.ValuesService
         {
             return new[]
             {
-                new ServiceReplicaListener(context =>
-                    new WebHostCommunicationListener(context, "ServiceEndpoint", uri =>
+                new ServiceReplicaListener(
+                    context => new WebListenerCommunicationListener(context, 
+                        new string[] { "ServiceEndpoint" }, uri =>
                         new WebHostBuilder().UseWebListener()
-                                           .UseStartup<Startup>()
-                                           .UseUrls(uri)
                                            .ConfigureServices(services => {
                                                services.AddSingleton<IReliableStateManager>(this.StateManager);
                                                services.AddSingleton<IServicePartition>(this.Partition);
@@ -46,6 +44,8 @@ namespace Application1.ValuesService
                                                services.AddSingleton<ServiceContext>(this.Context);
                                                services.AddSingleton<HttpClient>(this.HttpClient);
                                            })
+                                           .UseStartup<Startup>()
+                                           .UseUrls(uri)
                                            .Build()), name: "web")
             };
         }

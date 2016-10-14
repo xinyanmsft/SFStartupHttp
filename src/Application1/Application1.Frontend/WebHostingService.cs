@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Application1.Frontend.Utility;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.ServiceFabric.Http;
-using Microsoft.ServiceFabric.Http.Client;
+using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using System;
@@ -31,19 +31,19 @@ namespace Application1.Frontend
         {
             return new[]
             {
-                new ServiceInstanceListener(context =>
-                    new WebHostCommunicationListener(context, "ServiceEndpoint", uri =>
+                new ServiceInstanceListener(
+                    context => new WebListenerCommunicationListener(context, 
+                        new string[] { "ServiceEndpoint" }, uri =>
                         new WebHostBuilder().UseWebListener()
+                                           .ConfigureServices(services => {
+                                               services.AddSingleton<IServicePartition>(this.Partition);
+                                               services.AddSingleton<ServiceMonitor>(this.ServiceMonitor);
+                                               services.AddSingleton<ServiceContext>(this.Context);
+                                               services.AddSingleton<HttpClient>(this.HttpClient);
+                                           })
                                            .UseContentRoot(Directory.GetCurrentDirectory())
                                            .UseStartup<Startup>()
                                            .UseUrls(uri)
-                                           .ConfigureServices(services =>
-                                               {
-                                                   services.AddSingleton<IServicePartition>(this.Partition);
-                                                   services.AddSingleton<ServiceMonitor>(this.ServiceMonitor);
-                                                   services.AddSingleton<ServiceContext>(this.Context);
-                                                   services.AddSingleton<HttpClient>(this.HttpClient);
-                                               })
                                            .Build()), name: "web")
             };
         }

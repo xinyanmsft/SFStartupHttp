@@ -4,9 +4,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Microsoft.ServiceFabric.Http.Service
+namespace Application1.ValuesService.Utility
 {
-    public sealed class ServiceFabricDiagMiddleware
+    internal class ServiceFabricDiagMiddleware
     {
         public ServiceFabricDiagMiddleware(RequestDelegate next)
         {
@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Http.Service
         {
             string correlationId = null;
             StringValues correlationIdHeader, originHeader;
-            if (context.Request.Headers.TryGetValue(ServiceFabricDiagnostics.CorrelationHeaderName, out correlationIdHeader))
+            if (context.Request.Headers.TryGetValue(HttpCorrelation.CorrelationHeaderName, out correlationIdHeader))
             {
                 correlationId = correlationIdHeader.FirstOrDefault();
             }
@@ -43,12 +43,12 @@ namespace Microsoft.ServiceFabric.Http.Service
                 correlationId = Guid.NewGuid().ToString("N");
             }
 
-            if (context.Request.Headers.TryGetValue(ServiceFabricDiagnostics.RequestOriginHeaderName, out originHeader))
+            if (context.Request.Headers.TryGetValue(HttpCorrelation.RequestOriginHeaderName, out originHeader))
             {
-                ServiceFabricDiagnostics.SetRequestOrigin(originHeader.FirstOrDefault());
+                HttpCorrelation.SetRequestOrigin(originHeader.FirstOrDefault());
             }
 
-            ServiceFabricDiagnostics.SetRequestCorrelationId(correlationId);
+            HttpCorrelation.SetRequestCorrelationId(correlationId);
         }
 
         private readonly RequestDelegate _next;

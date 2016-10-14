@@ -1,15 +1,9 @@
 ﻿using System.Threading;
 
-namespace Microsoft.ServiceFabric
+namespace Application1.WatchdogService.Utility
 {
-    public static class ServiceFabricDiagnostics
+    internal static class HttpCorrelation
     {
-        private static AsyncLocal<string> RequestCorrelationId = new AsyncLocal<string>();
-        private static AsyncLocal<string> RequestOrigin = new AsyncLocal<string>();
-
-        public const string CorrelationHeaderName = "__CorrelationId";
-        public const string RequestOriginHeaderName = "__RequestOrigin";
-
         public static string GetRequestCorrelationId()
         {
             return RequestCorrelationId.Value;
@@ -29,5 +23,11 @@ namespace Microsoft.ServiceFabric
         {
             RequestOrigin.Value = value;
         }
+
+        private static AsyncLocal<string> RequestCorrelationId = new AsyncLocal<string>();
+        private static AsyncLocal<string> RequestOrigin = new AsyncLocal<string>();
+
+        public const string CorrelationHeaderName = "__CorrelationId";
+        public const string RequestOriginHeaderName = "__RequestOrigin";
     }
 }

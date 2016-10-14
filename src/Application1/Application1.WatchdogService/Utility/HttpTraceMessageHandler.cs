@@ -7,13 +7,13 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.ServiceFabric.Http.Client
+namespace Application1.WatchdogService.Utility
 {
     /// <summary>
     /// HttpTraceMessageHandler is a HTTP message handler that traces the request by 1) flows the CorrelationId 
     /// across service boundary and 2) output the traces to ETW.
     /// </summary>
-    public sealed class HttpTraceMessageHandler : DelegatingHandler
+    internal class HttpTraceMessageHandler : DelegatingHandler
     {
         public HttpTraceMessageHandler(ServiceContext context) : base()
         {
@@ -24,39 +24,39 @@ namespace Microsoft.ServiceFabric.Http.Client
         {
             this.context = context;
         }
-
+        
         #region DelegatingHandler override
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (!request.Headers.Contains(ServiceFabricDiagnostics.CorrelationHeaderName))
+            if (!request.Headers.Contains(HttpCorrelation.CorrelationHeaderName))
             {
-                SetCorrelationHeader(request, ServiceFabricDiagnostics.GetRequestCorrelationId());
+                SetCorrelationHeader(request, HttpCorrelation.GetRequestCorrelationId());
             }
 
-            if (!request.Headers.Contains(ServiceFabricDiagnostics.RequestOriginHeaderName) && this.context != null)
+            if (!request.Headers.Contains(HttpCorrelation.RequestOriginHeaderName) && this.context != null)
             {
                 SetRequestOriginHeader(request, this.context.ServiceName.ToString());
             }
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            string origin = GetHeaderValue(request, ServiceFabricDiagnostics.RequestOriginHeaderName);
-            string correlationId = GetHeaderValue(request, ServiceFabricDiagnostics.CorrelationHeaderName);
+            string origin = GetHeaderValue(request, HttpCorrelation.RequestOriginHeaderName);
+            string correlationId = GetHeaderValue(request, HttpCorrelation.CorrelationHeaderName);
 
-            HttpClientEventSource.Current.RequestStart(request, origin, correlationId);
+            ServiceEventSource.Current.HttpClientRequestStart(request, origin, correlationId);
             try
             {
                 return await base.SendAsync(request, cancellationToken);
             }
             catch(Exception ex)
             {
-                HttpClientEventSource.Current.RequestFailed(request, origin, correlationId, ex);
+                ServiceEventSource.Current.HttpClientRequestFailed(request, origin, correlationId, ex);
                 throw;
             }
             finally
             {
                 stopwatch.Stop();
-                HttpClientEventSource.Current.RequestStop(request, origin, correlationId, stopwatch.Elapsed.TotalMilliseconds);
+                ServiceEventSource.Current.HttpClientRequestStop(request, origin, correlationId, stopwatch.Elapsed.TotalMilliseconds);
             }
         }
         #endregion
@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Http.Client
         {
             if (!string.IsNullOrEmpty(correlationId))
             {
-                request.Headers.TryAddWithoutValidation(ServiceFabricDiagnostics.CorrelationHeaderName, correlationId);
+                request.Headers.TryAddWithoutValidation(HttpCorrelation.CorrelationHeaderName, correlationId);
             }
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.ServiceFabric.Http.Client
         {
             if (!string.IsNullOrEmpty(serviceName))
             {
-                request.Headers.TryAddWithoutValidation(ServiceFabricDiagnostics.RequestOriginHeaderName, serviceName);
+                request.Headers.TryAddWithoutValidation(HttpCorrelation.RequestOriginHeaderName, serviceName);
             }
         }
         #endregion

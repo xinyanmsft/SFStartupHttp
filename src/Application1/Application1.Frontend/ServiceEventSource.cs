@@ -1,7 +1,8 @@
-﻿using Microsoft.ServiceFabric;
+﻿using Application1.Frontend.Utility;
 using System;
 using System.Diagnostics.Tracing;
 using System.Fabric;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Application1.Frontend
@@ -29,6 +30,7 @@ namespace Application1.Frontend
         {
             public const EventKeywords Requests = (EventKeywords)0x1L;
             public const EventKeywords ServiceInitialization = (EventKeywords)0x2L;
+            public const EventKeywords HttpClientRequests = (EventKeywords)0x4L;
         }
         #endregion
 
@@ -75,7 +77,7 @@ namespace Application1.Frontend
                     serviceContext.CodePackageActivationContext.ApplicationName,
                     serviceContext.CodePackageActivationContext.ApplicationTypeName,
                     serviceContext.NodeContext.NodeName,
-                    ServiceFabricDiagnostics.GetRequestCorrelationId() ?? string.Empty,
+                    HttpCorrelation.GetRequestCorrelationId() ?? string.Empty,
                     finalMessage);
             }
         }
@@ -151,11 +153,11 @@ namespace Application1.Frontend
             string applicationTypeName = serviceContext != null ? serviceContext.CodePackageActivationContext.ApplicationTypeName : null;
             if (correlationId == null)
             {
-                correlationId = ServiceFabricDiagnostics.GetRequestCorrelationId() ?? string.Empty;
+                correlationId = HttpCorrelation.GetRequestCorrelationId() ?? string.Empty;
             }
             if (origin == null)
             {
-                origin = ServiceFabricDiagnostics.GetRequestOrigin() ?? string.Empty;
+                origin = HttpCorrelation.GetRequestOrigin() ?? string.Empty;
             }
             ServiceRequestStart(requestTypeName, method, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
         }
@@ -179,11 +181,11 @@ namespace Application1.Frontend
             string applicationTypeName = serviceContext != null ? serviceContext.CodePackageActivationContext.ApplicationTypeName : null;
             if (correlationId == null)
             {
-                correlationId = ServiceFabricDiagnostics.GetRequestCorrelationId() ?? string.Empty;
+                correlationId = HttpCorrelation.GetRequestCorrelationId() ?? string.Empty;
             }
             if (origin == null)
             {
-                origin = ServiceFabricDiagnostics.GetRequestOrigin() ?? string.Empty;
+                origin = HttpCorrelation.GetRequestOrigin() ?? string.Empty;
             }
             ServiceRequestStop(requestTypeName, method, statusCode, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
         }
@@ -206,11 +208,11 @@ namespace Application1.Frontend
             string applicationTypeName = serviceContext != null ? serviceContext.CodePackageActivationContext.ApplicationTypeName : null;
             if (correlationId == null)
             {
-                correlationId = ServiceFabricDiagnostics.GetRequestCorrelationId() ?? string.Empty;
+                correlationId = HttpCorrelation.GetRequestCorrelationId() ?? string.Empty;
             }
             if (origin == null)
             {
-                origin = ServiceFabricDiagnostics.GetRequestOrigin() ?? string.Empty;
+                origin = HttpCorrelation.GetRequestOrigin() ?? string.Empty;
             }
             ServiceRequestFailed(requestTypeName, method, exception, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
         }
@@ -219,6 +221,57 @@ namespace Application1.Frontend
         public void ServiceRequestFailed(string requestTypeName, string method, string exception, string serviceName, string serviceTypeName, long replicaOrInstanceId, Guid partitionId, string applicationName, string applicationTypeName, string correlationId, string origin)
         {
             WriteEvent(ServiceRequestFailedEventId, requestTypeName, method, exception, serviceName, serviceTypeName, replicaOrInstanceId, partitionId, applicationName, applicationTypeName, correlationId, origin);
+        }
+
+        [NonEvent]
+        public void HttpClientRequestStart(HttpRequestMessage request, string origin, string correlationId)
+        {
+            HttpClientRequestStart(request.RequestUri.OriginalString, request.Method.ToString(), origin, correlationId);
+        }
+
+        // A pair of events sharing the same name prefix with a "Start"/"Stop" suffix implicitly marks boundaries of an event tracing activity.
+        // These activities can be automatically picked up by debugging and profiling tools, which can compute their execution time, child activities,
+        // and other statistics.
+        private const int HttpClientRequestStartEventId = 8;
+        [Event(HttpClientRequestStartEventId, Level = EventLevel.Informational, Message = "Http request '{0}' started", Keywords = Keywords.HttpClientRequests)]
+        public void HttpClientRequestStart(string requestName, string method, string origin, string correlationId)
+        {
+            correlationId = correlationId ?? string.Empty;
+            origin = origin ?? string.Empty;
+
+            WriteEvent(HttpClientRequestStartEventId, requestName, method, origin, correlationId);
+        }
+
+        [NonEvent]
+        public void HttpClientRequestStop(HttpRequestMessage request, string origin, string correlationId, double duration)
+        {
+            HttpClientRequestStop(request.RequestUri.OriginalString, request.Method.ToString(), origin, correlationId, duration);
+        }
+
+        private const int HttpClientRequestStopEventId = 9;
+        [Event(HttpClientRequestStopEventId, Level = EventLevel.Informational, Message = "Http request '{0}' finished", Keywords = Keywords.HttpClientRequests)]
+        public void HttpClientRequestStop(string requestName, string method, string origin, string correlationId, double duration)
+        {
+            correlationId = correlationId ?? string.Empty;
+            origin = origin ?? string.Empty;
+
+            WriteEvent(HttpClientRequestStopEventId, requestName, method, origin, correlationId, duration);
+        }
+
+        [NonEvent]
+        public void HttpClientRequestFailed(HttpRequestMessage request, string origin, string correlationId, Exception exception)
+        {
+            HttpClientRequestFailed(request.RequestUri.OriginalString, request.Method.ToString(), origin, correlationId, exception.ToString());
+        }
+
+        private const int HttpClientRequestFailedEventId = 10;
+        [Event(HttpClientRequestFailedEventId, Level = EventLevel.Error, Message = "Http request '{0}' failed", Keywords = Keywords.HttpClientRequests)]
+        public void HttpClientRequestFailed(string requestName, string method, string origin, string correlationId, string exception)
+        {
+            correlationId = correlationId ?? string.Empty;
+            origin = origin ?? string.Empty;
+
+            WriteEvent(HttpClientRequestFailedEventId, requestName, method, origin, correlationId, exception);
         }
         #endregion
 
