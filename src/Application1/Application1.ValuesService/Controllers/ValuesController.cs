@@ -1,5 +1,6 @@
 ﻿using Application1.ValuesService.Utility;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Diagnostics.Correlation.Common;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Newtonsoft.Json;
@@ -37,6 +38,8 @@ namespace Application1.ValuesService.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(string id)
         {
+            string correlationId = ContextResolver.GetRequestContext<string>();
+
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
@@ -54,6 +57,7 @@ namespace Application1.ValuesService.Controllers
         [HttpPost("{id}")]
         public async Task<IActionResult> PostAsync(string id)
         {
+            string correlationId = ContextResolver.GetRequestContext<string>();
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
@@ -66,6 +70,7 @@ namespace Application1.ValuesService.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAsync(string id, [FromBody]ValuesEntity value)
         {
+            string correlationId = ContextResolver.GetRequestContext<string>();
             if (string.IsNullOrWhiteSpace(id) || value == null)
             {
                 return this.BadRequest();

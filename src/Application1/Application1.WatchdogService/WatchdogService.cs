@@ -33,7 +33,7 @@ namespace Application1.WatchdogService
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             string applicationName = FabricRuntime.GetActivationContext().ApplicationName;
-
+            System.Threading.Thread.Sleep(1000000);
             while (true)
             {
                 await Task.Delay(this.healthCheckFrequency, cancellationToken);

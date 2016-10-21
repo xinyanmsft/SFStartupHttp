@@ -1,5 +1,6 @@
 ﻿using Application1.Frontend.Utility;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Diagnostics.Correlation.Common;
 using System;
 using System.Fabric;
 using System.Net.Http;
@@ -23,6 +24,8 @@ namespace Application1.Frontend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(string id)
         {
+            string correlationId = ContextResolver.GetRequestContext<string>();
+
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
@@ -43,6 +46,7 @@ namespace Application1.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync()
         {
+            string correlationId = ContextResolver.GetRequestContext<string>();
             string newId = Guid.NewGuid().ToString();
             var partitionKey = ServiceUtility.GetValuesPartitionKey(newId);
             Uri serviceUri = ServiceUtility.GetServiceUri(this.serviceContext, "ValuesService");
@@ -61,6 +65,7 @@ namespace Application1.Frontend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAsync(string id)
         {
+            string correlationId = ContextResolver.GetRequestContext<string>();
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
