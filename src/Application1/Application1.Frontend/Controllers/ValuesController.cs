@@ -24,7 +24,8 @@ namespace Application1.Frontend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(string id)
         {
-            string correlationId = ContextResolver.GetRequestContext<string>();
+            var correlationContext = ContextResolver.GetRequestContext<CorrelationContext>();
+            string correlationId = correlationContext.TransactionId;
 
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -46,7 +47,9 @@ namespace Application1.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync()
         {
-            string correlationId = ContextResolver.GetRequestContext<string>();
+            var correlationContext = ContextResolver.GetRequestContext<CorrelationContext>();
+            string correlationId = correlationContext.TransactionId;
+
             string newId = Guid.NewGuid().ToString();
             var partitionKey = ServiceUtility.GetValuesPartitionKey(newId);
             Uri serviceUri = ServiceUtility.GetServiceUri(this.serviceContext, "ValuesService");
@@ -65,7 +68,8 @@ namespace Application1.Frontend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAsync(string id)
         {
-            string correlationId = ContextResolver.GetRequestContext<string>();
+            var correlationContext = ContextResolver.GetRequestContext<CorrelationContext>();
+            string correlationId = correlationContext.TransactionId;
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();

@@ -1,7 +1,7 @@
 ﻿using Application1.ValuesService.Utility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Diagnostics.Correlation.Middleware;
+using Microsoft.Diagnostics.Correlation.AspNetCore.Middleware;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -36,7 +36,7 @@ namespace Application1.ValuesService
             loggerFactory.AddDebug();
 
             //app.UseMiddleware<ServiceFabricDiagMiddleware>();
-           // app.UseMiddleware<CorrelationContextTracingMiddleware>();
+            app.UseMiddleware<CorrelationContextTracingMiddleware>();
             app.UseMiddleware<ServiceMiddleware>();
             app.UseMvc();
         }

@@ -38,7 +38,8 @@ namespace Application1.ValuesService.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(string id)
         {
-            string correlationId = ContextResolver.GetRequestContext<string>();
+            var correlationContext = ContextResolver.GetRequestContext<CorrelationContext>();
+            string correlationId = correlationContext.TransactionId;
 
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -57,7 +58,8 @@ namespace Application1.ValuesService.Controllers
         [HttpPost("{id}")]
         public async Task<IActionResult> PostAsync(string id)
         {
-            string correlationId = ContextResolver.GetRequestContext<string>();
+            var correlationContext = ContextResolver.GetRequestContext<CorrelationContext>();
+            string correlationId = correlationContext.TransactionId;
             if (string.IsNullOrWhiteSpace(id))
             {
                 return this.BadRequest();
@@ -70,7 +72,9 @@ namespace Application1.ValuesService.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAsync(string id, [FromBody]ValuesEntity value)
         {
-            string correlationId = ContextResolver.GetRequestContext<string>();
+            var correlationContext = ContextResolver.GetRequestContext<CorrelationContext>();
+            string correlationId = correlationContext.TransactionId;
+
             if (string.IsNullOrWhiteSpace(id) || value == null)
             {
                 return this.BadRequest();

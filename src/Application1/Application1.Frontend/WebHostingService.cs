@@ -1,6 +1,6 @@
 ﻿using Application1.Frontend.Utility;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Diagnostics.Correlation.Http;
+using Microsoft.Diagnostics.Correlation.Common.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -70,12 +70,7 @@ namespace Application1.Frontend
             // TODO: 
             //  - One can further customize the Http client behavior by customizing the HttpClientHandler, or by adjusting 
             // ServicePointManager properties.
-            /*            return HttpClientFactory.Create(new HttpClientHandler(),
-                                                        new HttpTraceMessageHandler(this.Context)   // Adds correlation Id tracing to the HTTP request
-                                                        );*/
-            CorrelationHttpClientBuilder builder = new CorrelationHttpClientBuilder();
-            HttpClient client = builder.CreateClient();     // Feedback: needs a few helper message to take additional handlers
-                                                            // avoid people create HttpClient handler instead of using generic.
+            HttpClient client = CorrelationHttpClientBuilder.CreateClient();
             return client;
         }
 

@@ -1,7 +1,7 @@
 ﻿using Application1.Frontend.Utility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Diagnostics.Correlation.Middleware;
+using Microsoft.Diagnostics.Correlation.AspNetCore.Middleware;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
